@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roblox Clothing Studio — Shirt & Pants Template Builder</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --panel2: #1c232d;
+    --border: #2b333d;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #4c8bf5;
+    --accent2: #2ea043;
+    --danger: #f0506e;
+    --chip: #21262d;
+    /* Official Roblox template face colours */
+    --f-up: #29abe2;
+    --f-down: #f5811e;
+    --f-left: #f4a81d;
+    --f-right: #1fa64a;
+    --f-front: #e2402f;
+    --f-back: #1a8fd0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+  #app { display: flex; height: 100vh; width: 100vw; }
+
+  /* ---------- Left control panel ---------- */
+  #left {
+    width: 360px; min-width: 330px; height: 100%;
+    background: var(--panel); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .brand { padding: 15px 18px 12px; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:11px; }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 8px; flex:none;
+    background: linear-gradient(135deg, #e2402f, #f5811e);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#fff;
+    transform: rotate(-8deg); box-shadow: 0 2px 8px rgba(226,64,47,.35);
+  }
+  .brand h1 { margin: 0; font-size: 16px; letter-spacing: .2px; }
+  .brand p { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); }
+  #panel { flex:1; overflow-y: auto; }
+  #panel::-webkit-scrollbar { width: 10px; }
+  #panel::-webkit-scrollbar-thumb { background: #2b333d; border-radius: 6px; border: 2px solid var(--panel); }
+  .section { padding: 13px 18px; border-bottom: 1px solid var(--border); }
+  .section h2 {
+    margin: 0 0 10px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--muted); font-weight: 600; display:flex; align-items:center; gap:7px;
+  }
+  .section h2 .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row.wrap { flex-wrap: wrap; }
+  .row + .row { margin-top: 8px; }
+  button {
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    padding: 9px 13px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    font-family: inherit; transition: filter .12s ease, background .12s ease;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:active { filter: brightness(.92); }
+  button.secondary { background: var(--panel2); border: 1px solid var(--border); color: var(--text); font-weight: 500; }
+  button.secondary:hover { border-color: var(--accent); filter:none; }
+  button.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500; padding: 7px 10px; font-size: 12px; }
+  button.ghost:hover { color: var(--text); border-color: var(--accent); filter:none; }
+  button.danger { background: transparent; border:1px solid #5a2730; color: var(--danger); font-weight:500; }
+  button.danger:hover { background: rgba(240,80,110,.12); filter:none; }
+  button.full { width: 100%; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .seg { display:flex; background: var(--panel2); border:1px solid var(--border); border-radius: 9px; padding: 3px; gap:3px; }
+  .seg button {
+    flex:1; background: transparent; color: var(--muted); font-weight:600; padding: 8px 6px; border-radius: 6px; font-size: 13px;
+  }
+  .seg button.active { background: var(--accent); color:#fff; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+  .seg button:hover:not(.active) { color: var(--text); filter:none; }
+  .field { margin-bottom: 10px; }
+  .field:last-child { margin-bottom:0; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  select, input[type="text"], input[type="number"] {
+    width: 100%; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    font-size: 13px; font-family: inherit;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .hint { font-size: 11px; color: var(--muted); line-height: 1.55; }
+  .hint code, kbd { background: var(--panel2); padding: 1px 6px; border-radius: 4px; color: #b9c6d3; font-size:11px; border:1px solid var(--border); }
+
+  /* colour input */
+  .colorpick { display:flex; align-items:center; gap:8px; }
+  input[type="color"] {
+    width: 40px; height: 34px; padding: 0; border: 1px solid var(--border);
+    border-radius: 7px; background: var(--panel2); cursor: pointer;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 3px; }
+  input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+  /* palette */
+  .swatches { display:grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .swatch {
+    aspect-ratio: 1; border-radius: 6px; cursor: pointer; border: 2px solid transparent;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .swatch:hover { transform: scale(1.08); border-color: rgba(255,255,255,.7); }
+  .swatch.active { border-color: #fff; }
+
+  /* selected-face card */
+  #faceCard .facehead { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  #faceSwatch { width: 30px; height: 30px; border-radius: 7px; border:1px solid var(--border); flex:none; }
+  #faceName { font-size: 14px; font-weight:600; }
+  #faceSub { font-size: 11px; color: var(--muted); }
+  .muted-note { font-size:12px; color:var(--muted); font-style:italic; }
+  .imgctrls { display:none; }
+  .imgctrls.show { display:block; }
+
+  .uploadbtn { position: relative; overflow:hidden; }
+  .uploadbtn input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+  /* draw tools */
+  .toolgrid { display:grid; grid-template-columns: repeat(3,1fr); gap:6px; }
+  .toolbtn {
+    display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 4px;
+    background:var(--panel2); border:1px solid var(--border); color:var(--muted);
+    border-radius:8px; font-size:16px; font-weight:500; line-height:1;
+  }
+  .toolbtn span { font-size:10.5px; }
+  .toolbtn:hover { color:var(--text); border-color:var(--accent); filter:none; }
+  .toolbtn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  #eraseToggle { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; }
+  #eraseToggle input { accent-color:#d65aa0; width:15px; height:15px; }
+  #eraseToggle.on { background:rgba(214,90,160,.14); border-color:#b5377a; color:#ff9ccb; }
+
+  /* ---------- Main stage ---------- */
+  #main { flex: 1; height: 100%; display: flex; flex-direction: column; position: relative; min-width: 0; }
+  #toolbar {
+    height: 50px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; gap: 14px; padding: 0 14px; flex:none;
+  }
+  #toolbar .tb-seg { display:flex; background: var(--panel2); border:1px solid var(--border); border-radius:8px; padding:3px; gap:3px; }
+  #toolbar .tb-seg button { background:transparent; color:var(--muted); padding:6px 14px; font-size:13px; font-weight:600; border-radius:6px; }
+  #toolbar .tb-seg button.active { background: var(--accent); color:#fff; }
+  #toolbar .tb-seg button:hover:not(.active){ color:var(--text); filter:none; }
+  .tb-toggle { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none; }
+  .tb-toggle input { accent-color: var(--accent); width:15px; height:15px; }
+  .tb-spacer { flex:1; }
+  #zoomLabel { font-size:12px; color:var(--muted); font-variant-numeric: tabular-nums; min-width:42px; text-align:center; }
+
+  #stageScroll { flex:1; overflow:hidden; position:relative; touch-action:none; background:
+     radial-gradient(ellipse at 50% 30%, #161d27 0%, #0c0f14 80%); }
+  #stage { position:absolute; inset:0; }
+  #canvasWrap {
+    position: absolute; left:0; top:0; transform-origin: 0 0; will-change: transform;
+    box-shadow: 0 12px 40px rgba(0,0,0,.55); border-radius: 4px;
+  }
+  /* transparency checkerboard */
+  .checker {
+    background-image:
+      linear-gradient(45deg,#39414c 25%,transparent 25%),
+      linear-gradient(-45deg,#39414c 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#39414c 75%),
+      linear-gradient(-45deg,transparent 75%,#39414c 75%);
+    background-size: 18px 18px;
+    background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+    background-color: #2b323b;
+  }
+  #artCanvas, #guideCanvas { display:block; width: 585px; height: 559px; border-radius:4px; }
+  #guideCanvas { position:absolute; inset:0; cursor: crosshair; }
+
+  #statusBar {
+    height: 30px; background: var(--panel); border-top: 1px solid var(--border);
+    display:flex; align-items:center; gap:18px; padding: 0 16px; flex:none;
+    font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  #statusBar b { color: var(--text); font-weight:600; }
+  #statusBar .sb-right { margin-left:auto; display:flex; gap:18px; }
+
+  /* ---------- 3D preview ---------- */
+  #preview {
+    position: absolute; right: 16px; bottom: 44px; width: 440px; height: 600px;
+    background: linear-gradient(180deg, #1a2230, #0d1117);
+    border: 1px solid var(--border); border-radius: 12px; z-index: 20;
+    box-shadow: 0 16px 50px rgba(0,0,0,.6); display:none; flex-direction:column; overflow:hidden;
+  }
+  #preview.show { display:flex; }
+  #preview.big { width: 680px; height: 760px; }
+  #preview .ph { display:flex; align-items:center; gap:8px; padding: 7px 10px; border-bottom:1px solid var(--border); }
+  #preview .ph span { font-size:12px; color:var(--muted); font-weight:600; }
+  #preview .ph .pbtn { margin-left:auto; }
+  #preview .ph .pbtn, #preview .ph .pbtn2 { background:var(--panel2); border:1px solid var(--border); color:var(--muted); width:24px; height:24px; padding:0; border-radius:6px; font-size:13px; display:flex;align-items:center;justify-content:center; }
+  #preview .ph .pbtn:hover, #preview .ph .pbtn2:hover { color:var(--text); border-color:var(--accent); }
+  #scene {
+    flex:1; perspective: 1300px; display:flex; align-items:center; justify-content:center;
+    cursor: grab; position:relative; overflow:hidden;
+  }
+  #scene.grabbing { cursor: grabbing; }
+  #rig { transform-style: preserve-3d; position:relative; transition: none; }
+  #ground {
+    position:absolute; width: 220px; height: 50px; border-radius:50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,.45), transparent 70%);
+    left:50%; top:50%; transform: translate(-50%, 175px) rotateX(72deg); filter: blur(2px);
+  }
+  .cuboid { position:absolute; transform-style: preserve-3d; left:50%; top:50%; }
+  .cuboid .cf { position:absolute; overflow:hidden; background:#9a9a9d; }
+  .cuboid .cf canvas { width:100%; height:100%; display:block; }
+  .pvtoggle { display:flex; align-items:center; gap:8px; padding: 6px 10px; border-top:1px solid var(--border); font-size:11.5px; color:var(--muted); }
+  .pvtoggle input { accent-color: var(--accent); }
+
+  /* free-image transform bar */
+  #xformBar {
+    display:none; position:absolute; left:50%; bottom:42px; transform:translateX(-50%);
+    background:#1b2532; border:1px solid var(--border); border-radius:11px; z-index:25;
+    box-shadow:0 12px 40px rgba(0,0,0,.55); padding:8px 10px; gap:8px; align-items:center;
+  }
+  #xformBar #xformInfo { font-size:13px; color:var(--text); font-variant-numeric:tabular-nums; padding:0 6px; min-width:120px; text-align:center; }
+  #xformBar #xformInfo b { color:#7fd2ff; }
+  #xformBar .xf-sp { width:1px; height:22px; background:var(--border); }
+  #xformBar button { padding:7px 12px; font-size:12.5px; }
+  #xformBar #xfPlace { background:var(--accent2); }
+
+  /* toast */
+  #toast {
+    position: fixed; bottom: 44px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1f2630; border:1px solid var(--border); color: var(--text);
+    padding: 10px 16px; border-radius: 9px; font-size: 13px; opacity:0; pointer-events:none;
+    transition: opacity .2s, transform .2s; z-index: 100; box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  }
+  #toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+  #toast.ok { border-color:#2a6b3f; }
+  #toast.err { border-color:#5a2730; }
+
+  .divider { height:1px; background:var(--border); margin: 10px 0; border:0; }
+
+  /* saved projects list */
+  .save-head { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin:12px 0 6px; }
+  #saveList { max-height:176px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; }
+  #saveList::-webkit-scrollbar { width:8px; }
+  #saveList::-webkit-scrollbar-thumb { background:#2b333d; border-radius:5px; border:2px solid var(--panel); }
+  .save-row { display:flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--border); border-radius:7px; padding:5px 6px 5px 10px; }
+  .save-row .save-name { flex:1; font-size:12.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .save-row button { padding:4px 9px; font-size:11.5px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ============ LEFT PANEL ============ -->
+  <div id="left">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <h1>Roblox Clothing Studio</h1>
+        <p>Official Shirt &amp; Pants template builder</p>
+      </div>
+    </div>
+    <div id="panel">
+
+      <!-- Template type -->
+      <div class="section">
+        <h2><span class="dot"></span>Template</h2>
+        <div class="seg" id="modeSeg">
+          <button data-mode="shirt" class="active">👕 Shirt</button>
+          <button data-mode="pants">👖 Pants</button>
+        </div>
+        <div class="row" style="margin-top:11px">
+          <button class="full uploadbtn" id="smartBtn" style="background:linear-gradient(135deg,#5b6df0,#7b4ff0)">🪄 Smart import — auto-slice a template
+            <input type="file" id="smartImport" accept="image/*">
+          </button>
+        </div>
+        <div class="row">
+          <button class="ghost full uploadbtn">📁 Import as flat base (for tracing)
+            <input type="file" id="importBase" accept="image/*">
+          </button>
+        </div>
+        <div class="row">
+          <button class="ghost full uploadbtn">🖼️ Add image — crop · scale · rotate (or drag &amp; drop)
+            <input type="file" id="addImage" accept="image/*">
+          </button>
+        </div>
+        <!-- import section boxes -->
+        <div id="alignPanel" style="display:none; margin-top:10px; padding:11px; background:var(--panel2); border:1px solid var(--accent); border-radius:9px">
+          <div style="font-size:12px;font-weight:600;color:var(--text)">Section boxes <span id="alignMode" class="muted-note"></span></div>
+          <div class="hint" id="alDims" style="margin:6px 0 10px; color:var(--text); min-height:18px"></div>
+          <button class="full" id="alDone" style="padding:15px 14px; font-size:15px; font-weight:700; background:linear-gradient(135deg,#2ea043,#1f9c3a); box-shadow:0 5px 18px rgba(46,160,67,.4); letter-spacing:.2px">✓ Build avatar template from sections →</button>
+          <button class="ghost full" id="alReset" style="margin-top:8px">↺ Reset boxes to the template slots</button>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="danger full" id="btnResetMode">↺ Clear this template</button>
+        </div>
+      </div>
+
+      <!-- Selected face -->
+      <div class="section" id="faceCard">
+        <h2><span class="dot" style="background:var(--accent2)"></span>Selected face</h2>
+        <div class="facehead">
+          <div id="faceSwatch" class="checker"></div>
+          <div>
+            <div id="faceName">Nothing selected</div>
+            <div id="faceSub">Click a coloured region on the canvas</div>
+          </div>
+        </div>
+
+        <div id="faceTools" style="display:none">
+          <div class="field">
+            <label>Fill colour</label>
+            <div class="colorpick">
+              <input type="color" id="faceColor" value="#c4281c">
+              <button class="secondary" id="btnApplyColor" style="flex:1">Apply colour</button>
+              <button class="ghost" id="btnClearColor">No fill</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Image on this face</label>
+            <div class="row">
+              <button class="secondary uploadbtn" style="flex:1">🖼️ Upload image
+                <input type="file" id="faceImg" accept="image/*">
+              </button>
+              <button class="ghost" id="btnClearImg">Remove</button>
+            </div>
+          </div>
+
+          <div class="imgctrls" id="imgctrls">
+            <div class="field">
+              <label>Fit</label>
+              <select id="imgFit">
+                <option value="cover">Cover (fill, crop)</option>
+                <option value="contain">Contain (fit inside)</option>
+                <option value="stretch">Stretch to face</option>
+                <option value="tile">Tile / repeat</option>
+              </select>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label>Scale <span id="scaleVal" class="muted-note"></span></label>
+                <input type="range" id="imgScale" min="0.1" max="4" step="0.01" value="1">
+              </div>
+              <div class="field">
+                <label>Rotate <span id="rotVal" class="muted-note"></span></label>
+                <input type="range" id="imgRot" min="-180" max="180" step="1" value="0">
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider">
+          <div class="grid2">
+            <button class="ghost" id="btnFillGroup">Fill whole part</button>
+            <button class="ghost" id="btnClearFace">Clear face</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Palette -->
+      <div class="section">
+        <h2><span class="dot" style="background:var(--f-front)"></span>Colour palette</h2>
+        <div class="field">
+          <label>Active colour</label>
+          <div class="colorpick">
+            <input type="color" id="mainColor" value="#c4281c">
+            <input type="text" id="mainColorHex" value="#C4281C" spellcheck="false" style="flex:1; font-family:monospace; text-transform:uppercase">
+          </div>
+        </div>
+        <div class="swatches" id="swatches"></div>
+      </div>
+
+      <!-- Draw & shapes -->
+      <div class="section">
+        <h2><span class="dot" style="background:#7b4ff0"></span>Draw &amp; shapes</h2>
+        <div class="toolgrid" id="toolGrid">
+          <button class="toolbtn active" data-tool="select" title="Select / edit faces (V)">🖱️<span>Select</span></button>
+          <button class="toolbtn" data-tool="brush" title="Freehand brush (B)">🖌️<span>Brush</span></button>
+          <button class="toolbtn" data-tool="line" title="Straight line (L)">📏<span>Line</span></button>
+          <button class="toolbtn" data-tool="rect" title="Rectangle (R)">▭<span>Rect</span></button>
+          <button class="toolbtn" data-tool="ellipse" title="Ellipse / circle (O)">⬭<span>Ellipse</span></button>
+          <button class="toolbtn" data-tool="triangle" title="Triangle (T)">▲<span>Triangle</span></button>
+        </div>
+        <div class="field" style="margin-top:11px">
+          <label>Brush / outline size <span id="sizeVal" class="muted-note">14 px</span></label>
+          <input type="range" id="brushSize" min="1" max="80" step="1" value="14">
+        </div>
+        <div class="row wrap" style="gap:14px; margin-bottom:10px">
+          <label class="tb-toggle" style="color:var(--text)"><input type="checkbox" id="fillShape" checked> Fill shapes</label>
+          <label class="tb-toggle" style="color:var(--text)"><input type="checkbox" id="perfectSnap"> Perfect (snap)</label>
+        </div>
+        <label id="eraseToggle" style="padding:9px 11px; border:1px solid var(--border); border-radius:8px; background:var(--panel2)">
+          <input type="checkbox" id="eraseMode"> 🧽 Transparent — cut see-through holes
+        </label>
+        <div class="grid2" style="margin-top:10px">
+          <button class="ghost" id="btnClearPaint">Clear drawing</button>
+          <button class="ghost" id="btnClearErase">Clear holes</button>
+        </div>
+      </div>
+
+      <!-- Quick fills -->
+      <div class="section">
+        <h2><span class="dot" style="background:var(--f-left)"></span>Quick fill</h2>
+        <div class="grid2">
+          <button class="secondary" id="btnFillAll">Fill all faces</button>
+          <button class="secondary" id="btnFillTorso">Fill torso</button>
+          <button class="secondary" id="btnFillLimbs">Fill <span class="limbsWord">arms</span></button>
+          <button class="secondary" id="btnFillFronts">Fill fronts</button>
+        </div>
+      </div>
+
+      <!-- Whole-template adjust -->
+      <div class="section">
+        <h2><span class="dot" style="background:#7b4ff0"></span>Adjust whole template</h2>
+        <div class="hint" style="margin-bottom:11px">Recolour <b style="color:var(--text)">everything</b> at once — faces, drawings &amp; images. Carries through to the PNG export and the 3D preview.</div>
+        <div class="field">
+          <label>Brightness <span id="adjBrightVal" class="muted-note">100%</span></label>
+          <input type="range" id="adjBright" min="0" max="200" step="1" value="100">
+        </div>
+        <div class="field">
+          <label>Saturation <span id="adjSatVal" class="muted-note">100%</span></label>
+          <input type="range" id="adjSat" min="0" max="300" step="1" value="100">
+        </div>
+        <div class="field">
+          <label>Tint / hue <span id="adjHueVal" class="muted-note">0°</span></label>
+          <input type="range" id="adjHue" min="-180" max="180" step="1" value="0">
+        </div>
+        <button class="ghost full" id="adjReset" style="margin-top:2px">↺ Reset adjustments</button>
+      </div>
+
+      <!-- Export -->
+      <div class="section">
+        <h2><span class="dot" style="background:var(--f-right)"></span>Export &amp; save</h2>
+        <div class="field">
+          <label>Project / file name</label>
+          <input type="text" id="exportName" placeholder="my-shirt" spellcheck="false">
+        </div>
+        <button class="full" id="btnExportPng" style="background:var(--accent2)">⬇️ Download PNG (585×559)</button>
+        <button class="full" id="btnSaveSlot" style="margin-top:8px">💾 Save project</button>
+        <div class="save-head">Saved projects <span class="muted-note"><b id="saveCount">0</b>/100</span></div>
+        <div id="saveList"></div>
+        <div class="grid2" style="margin-top:8px">
+          <button class="ghost" id="btnSaveProj">⤓ Export file</button>
+          <button class="ghost uploadbtn">⤒ Import file
+            <input type="file" id="loadProj" accept="application/json,.json">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN STAGE ============ -->
+  <div id="main">
+    <div id="toolbar">
+      <div class="tb-seg" id="modeSeg2">
+        <button data-mode="shirt" class="active">Shirt</button>
+        <button data-mode="pants">Pants</button>
+      </div>
+      <label class="tb-toggle"><input type="checkbox" id="guideToggle" checked> Template guide</label>
+      <label class="tb-toggle"><input type="checkbox" id="labelToggle" checked> Labels</label>
+      <div style="width:1px;height:22px;background:var(--border)"></div>
+      <button class="ghost" id="btnUndo" title="Undo (Ctrl/Cmd+Z)" disabled>↶ Undo</button>
+      <button class="ghost" id="btnRedo" title="Redo (Ctrl/Cmd+Shift+Z)" disabled>↷ Redo</button>
+      <div class="tb-spacer"></div>
+      <button class="ghost" id="zoomOut">−</button>
+      <div id="zoomLabel">100%</div>
+      <button class="ghost" id="zoomIn">+</button>
+      <button class="ghost" id="zoomFit">Fit</button>
+      <button class="secondary" id="btn3d">🧍 3D preview</button>
+    </div>
+
+    <div id="stageScroll">
+      <div id="stage">
+        <div id="canvasWrap" class="checker">
+          <canvas id="artCanvas" width="585" height="559"></canvas>
+          <canvas id="guideCanvas" width="585" height="559"></canvas>
+        </div>
+      </div>
+
+      <!-- 3D preview -->
+      <div id="preview">
+        <div class="ph">
+          <span id="pvTitle">3D preview</span>
+          <button class="pbtn2" id="pvBig" title="Resize">⤢</button>
+          <button class="pbtn" id="pvClose" title="Close">✕</button>
+        </div>
+        <div id="scene">
+          <div id="ground"></div>
+          <div id="rig"></div>
+        </div>
+        <label class="pvtoggle"><input type="checkbox" id="pvSpin"> Auto-rotate &nbsp;·&nbsp; drag to spin</label>
+      </div>
+
+      <!-- free image transform bar -->
+      <div id="xformBar">
+        <span id="xformInfo"></span>
+        <span class="xf-sp"></span>
+        <button class="ghost" id="xfReset">Reset</button>
+        <button class="danger" id="xfDelete" title="Remove (Del)">🗑 Delete</button>
+        <button class="ghost" id="xfCancel">Cancel</button>
+        <button id="xfPlace">✓ Place</button>
+      </div>
+    </div>
+
+    <div id="statusBar">
+      <div>Mode: <b id="sbMode">Shirt</b></div>
+      <div>Hover: <b id="sbHover">—</b></div>
+      <div>Selected: <b id="sbSel">none</b></div>
+      <div class="sb-right">
+        <div>Painted faces: <b id="sbCount">0</b>/18</div>
+        <div>Canvas: <b>585 × 559</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+//==================================================================
+//  Roblox official template geometry  (image is 585 x 559, 1 stud = 64px)
+//  Each face = one cube side Roblox folds onto the avatar.
+//==================================================================
+const TEMPLATE_W = 585, TEMPLATE_H = 559;
+
+// Exact pixel rectangles measured from the official 585x559 template (Template-Shirts-R15.png).
+// The official layout is 64/128px colour blocks with ~2px gaps between them — those gaps are
+// dead zones at the cube edges, so matching the blocks exactly is what makes Roblox stitch the
+// faces correctly. (Earlier "contiguous 64px" values shifted the outer faces and broke stitching.)
+const FACES = [
+  // ---- Torso (2 x 2 x 1 studs) ----
+  { part:'torso', face:'up',    rect:[231, 8,  128, 64 ] },
+  { part:'torso', face:'right', rect:[165, 74, 64,  128] },
+  { part:'torso', face:'front', rect:[231, 74, 128, 128] },
+  { part:'torso', face:'left',  rect:[361, 74, 64,  128] },
+  { part:'torso', face:'back',  rect:[427, 74, 128, 128] },
+  { part:'torso', face:'down',  rect:[231,204, 128, 64 ] },
+  // ---- Right limb (arm/leg, 1 x 2 x 1) : row L B R F ----
+  { part:'limbR', face:'up',    rect:[217,289, 64, 64 ] },
+  { part:'limbR', face:'left',  rect:[19, 355, 64, 128] },
+  { part:'limbR', face:'back',  rect:[85, 355, 64, 128] },
+  { part:'limbR', face:'right', rect:[151,355, 64, 128] },
+  { part:'limbR', face:'front', rect:[217,355, 64, 128] },
+  { part:'limbR', face:'down',  rect:[217,485, 64, 64 ] },
+  // ---- Left limb : row F L B R ----
+  { part:'limbL', face:'up',    rect:[308,289, 64, 64 ] },
+  { part:'limbL', face:'front', rect:[308,355, 64, 128] },
+  { part:'limbL', face:'left',  rect:[374,355, 64, 128] },
+  { part:'limbL', face:'back',  rect:[440,355, 64, 128] },
+  { part:'limbL', face:'right', rect:[506,355, 64, 128] },
+  { part:'limbL', face:'down',  rect:[308,485, 64, 64 ] },
+];
+const keyOf = f => f.part + ':' + f.face;
+const faceByKey = {};
+FACES.forEach(f => faceByKey[keyOf(f)] = f);
+
+const FACE_COLORS = {
+  up:'#29abe2', down:'#f5811e', left:'#f4a81d', right:'#1fa64a', front:'#e2402f', back:'#1a8fd0'
+};
+const FACE_FULL = { up:'UP', down:'DOWN', left:'LEFT', right:'RIGHT', front:'FRONT', back:'BACK' };
+const FACE_LETTER = { up:'U', down:'D', left:'L', right:'R', front:'F', back:'B' };
+
+function partName(part, mode){
+  if(part==='torso') return 'Torso';
+  const limb = mode==='shirt' ? 'Arm' : 'Leg';
+  return (part==='limbR' ? 'Right ' : 'Left ') + limb;
+}
+
+const PALETTE = ['#F8F8F8','#A3A2A5','#57595D','#1B2A35','#C4281C','#D86C1F','#F5CD30','#A1C621',
+                 '#4B974B','#0D69AC','#3B82C4','#0989CF','#92306E','#711A00','#CB8442','#2E5121'];
+
+//==================================================================
+//  State  (separate independent design per template type)
+//==================================================================
+function blankDesign(){
+  const paint = document.createElement('canvas'); paint.width = TEMPLATE_W; paint.height = TEMPLATE_H;
+  const erase = document.createElement('canvas'); erase.width = TEMPLATE_W; erase.height = TEMPLATE_H;
+  return { faces:{}, base:null, baseSrc:null, bgTransparent:true, bgColor:'#ffffff', paint, erase, images:[], adjust:{bright:100,sat:100,hue:0} };
+}
+const designs = { shirt: blankDesign(), pants: blankDesign() };
+let mode = 'shirt';
+let selected = null;          // face key
+let hovered = null;
+let activeColor = '#C4281C';
+let guideOn = true, labelsOn = true;
+let zoom = 1;
+
+// drawing state
+let tool = 'select';          // select | brush | line | rect | ellipse | triangle
+let cursorPos = null;
+let eraseMode = false;        // cut transparency instead of painting
+let fillShape = true;
+let perfectSnap = false;
+let brushSize = 14;
+let undoStack = [], redoStack = [];
+const imgCache = {};          // src -> Image, keeps undo/redo snappy
+let _pinchD = null;           // two-finger pinch distance (null = not pinching)
+let shiftHeld = false;        // holding Shift temporarily disables ALL snapping
+
+let xform = null;             // free image transform: { img, src:{x,y,w,h}, cx, cy, scale, rot }
+let xfDrag = null;            // active transform drag
+const D = () => designs[mode];
+function st(key, create){
+  const d = D();
+  if(!d.faces[key] && create) d.faces[key] = { color:null, img:null, src:null, fit:'cover', scale:1, rot:0, ox:0, oy:0 };
+  return d.faces[key];
+}
+
+//==================================================================
+//  Canvas refs
+//==================================================================
+const artCanvas = document.getElementById('artCanvas');
+const guideCanvas = document.getElementById('guideCanvas');
+const actx = artCanvas.getContext('2d');
+const gctx = guideCanvas.getContext('2d');
+
+// Match the overlay canvas's backing store to the on-screen resolution so the import
+// preview, section boxes, guides and labels render crisply instead of upscaled-blurry.
+// (artCanvas keeps its native 585×559 — it feeds the export, which must stay that size.)
+let guideSS = 0;
+function sizeGuideCanvas(){
+  const raw = Math.min(4, Math.max(1, (zoom||1) * (window.devicePixelRatio||1)));
+  const ss = Math.round(raw*2)/2;            // quantise so zooming doesn't thrash the backing store
+  if(ss !== guideSS){
+    guideSS = ss;
+    guideCanvas.width  = Math.round(TEMPLATE_W * ss);
+    guideCanvas.height = Math.round(TEMPLATE_H * ss);
+  }
+  gctx.setTransform(ss, 0, 0, ss, 0, 0);     // keep drawing in 585×559 space, supersampled
+  gctx.imageSmoothingEnabled = true; gctx.imageSmoothingQuality = 'high';
+}
+
+//------------------------------------------------------------------
+//  Artwork layers (this is what gets exported):
+//    faceLayer  = base image + per-face colours/images (cached)
+//    + free-draw paint layer, + erase mask cutting transparency
+//------------------------------------------------------------------
+const faceLayer = document.createElement('canvas'); faceLayer.width = TEMPLATE_W; faceLayer.height = TEMPLATE_H;
+const flctx = faceLayer.getContext('2d');
+flctx.imageSmoothingEnabled = true; flctx.imageSmoothingQuality = 'high';
+actx.imageSmoothingEnabled = true; actx.imageSmoothingQuality = 'high';
+
+// Scratch canvas: the whole composite is drawn here first, then blitted to the screen /
+// export through the per-template colour filter so brightness / saturation / tint hit every
+// layer (base, faces, drawing, images) uniformly — see adjustFilter() and renderComposite().
+const adjustLayer = document.createElement('canvas'); adjustLayer.width = TEMPLATE_W; adjustLayer.height = TEMPLATE_H;
+const adctx = adjustLayer.getContext('2d');
+adctx.imageSmoothingEnabled = true; adctx.imageSmoothingQuality = 'high';
+// CSS-style filter for a design's whole-template adjustment ('none' when at defaults).
+function adjustFilter(d){
+  const a = d.adjust || { bright:100, sat:100, hue:0 };
+  if(a.bright===100 && a.sat===100 && a.hue===0) return 'none';
+  return `brightness(${a.bright}%) saturate(${a.sat}%) hue-rotate(${a.hue}deg)`;
+}
+
+function renderFaceLayer(){
+  const d = D();
+  flctx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  if(d.base){ flctx.drawImage(d.base, 0,0, TEMPLATE_W, TEMPLATE_H); }
+  for(const f of FACES){
+    const s = d.faces[keyOf(f)];
+    if(!s) continue;
+    const [x,y,w,h] = f.rect;
+    if(s.color){ flctx.fillStyle = s.color; flctx.fillRect(x,y,w,h); }
+    if(s.img){ drawFaceImage(flctx, f, s); }
+  }
+}
+// Layer the artwork (base + faces) + free drawing + placed images into ctx, then cut the
+// erase-mask holes through all of it. The background fill is the caller's job. Shared by the
+// on-screen composite and the export so the two can never drift apart.
+function compositeArtwork(ctx, d){
+  ctx.drawImage(faceLayer, 0,0);
+  ctx.drawImage(d.paint, 0,0);
+  drawPlacedImages(ctx, d);           // re-editable dropped/imported images
+  // erase mask cuts holes through bg + faces + paint alike
+  ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.drawImage(d.erase, 0,0); ctx.restore();
+}
+// fast path: re-composite without rebuilding the (unchanged) face layer
+function renderComposite(){
+  const d = D();
+  actx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  const filter = adjustFilter(d);
+  if(filter === 'none'){
+    if(!d.bgTransparent){ actx.fillStyle = d.bgColor; actx.fillRect(0,0,TEMPLATE_W,TEMPLATE_H); }
+    compositeArtwork(actx, d);
+  } else {
+    // Build the untouched composite off-screen, then draw it back in ONE pass through the
+    // colour filter so the whole template is recoloured evenly. The erase holes are baked
+    // into the scratch's alpha, so they stay see-through (the filter doesn't touch alpha).
+    adctx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+    if(!d.bgTransparent){ adctx.fillStyle = d.bgColor; adctx.fillRect(0,0,TEMPLATE_W,TEMPLATE_H); }
+    compositeArtwork(adctx, d);
+    actx.save(); actx.filter = filter; actx.drawImage(adjustLayer, 0,0); actx.restore();
+  }
+  schedulePreview();
+  updateCount();
+  renderGuide();
+}
+function renderArt(){ renderFaceLayer(); renderComposite(); }
+
+// Clip any free-draw operation to the union of the 18 face rects, so the
+// transparent background/margins can never be painted on.
+const FACE_AREA = new Path2D();
+for(const f of FACES){ const [x,y,w,h] = f.rect; FACE_AREA.rect(x,y,w,h); }
+function clipFaces(ctx){ ctx.clip(FACE_AREA); }
+
+// Pre-computed mask: 1 where a pixel sits INSIDE one of the 18 face rects. The export
+// bleed below uses it so colour only ever grows OUTWARD into the empty margins — it must
+// never fill the see-through holes the user deliberately cut inside a face.
+const INSIDE_FACE = (()=>{
+  const m = new Uint8Array(TEMPLATE_W*TEMPLATE_H);
+  for(const f of FACES){ const [x,y,w,h]=f.rect; for(let yy=y; yy<y+h; yy++) for(let xx=x; xx<x+w; xx++) m[yy*TEMPLATE_W+xx]=1; }
+  return m;
+})();
+const BLEED = 16;
+// Roblox renders ANY semi-transparent texel as a see-through gap on the avatar, so a face's
+// faint anti-aliased edges (which look perfectly solid in the flat editor) turn into "random
+// gaps" along the seams once uploaded — most visibly on the thin arm/leg faces. Snap every
+// pixel to fully opaque or fully clear: a face's faint edge becomes solid (closing the gap),
+// while genuinely empty / see-through areas stay clear. Runs before the bleed so those
+// now-solid edges get a skirt too. A low threshold means we expand the solid area, never
+// shrink it — gaps can only close, not open.
+function hardenAlpha(canvas, T){
+  const ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0,0,canvas.width,canvas.height), d = img.data;
+  for(let i=3; i<d.length; i+=4) d[i] = d[i] >= T ? 255 : 0;
+  ctx.putImageData(img, 0, 0);
+}
+// Edge-bleed: grow the artwork's edge colours OUTWARD into the transparent margin by N
+// pixels (exterior only — a true alpha dilation). This is what stops Roblox showing
+// "random unfilled gaps" along the seams: when the avatar texture is mip-mapped /
+// downscaled, sampling at each folded cube edge reaches a pixel just outside the face —
+// with no skirt that pixel is transparent, so a gap appears. Unlike a per-face rectangle
+// pass, dilation also fills the diagonal corners where three faces meet (e.g. the
+// shoulders), leaving no untextured speck. The flat editor and the overlap-padded 3D
+// preview both hide all of this, so it only ever shows up once it reaches Roblox.
+function bleedExport(canvas, N){
+  const W = TEMPLATE_W, H = TEMPLATE_H, ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0,0,W,H), d = img.data;
+  for(let p=0; p<N; p++){
+    const src = d.slice();           // snapshot so each ring grows one pixel per pass
+    let changed = false;
+    for(let y=0; y<H; y++){
+      for(let x=0; x<W; x++){
+        const idx = y*W+x;
+        if(INSIDE_FACE[idx]) continue;          // protect inside-face pixels (and their holes)
+        const i = idx*4;
+        if(src[i+3] >= 200) continue;           // already filled
+        let r=0,g=0,b=0,n=0;
+        for(let dy=-1; dy<=1; dy++){
+          for(let dx=-1; dx<=1; dx++){
+            if(!dx && !dy) continue;
+            const xx=x+dx, yy=y+dy; if(xx<0||yy<0||xx>=W||yy>=H) continue;
+            const j = (yy*W+xx)*4;
+            if(src[j+3] >= 200){ r+=src[j]; g+=src[j+1]; b+=src[j+2]; n++; }
+          }
+        }
+        if(n){ d[i]=r/n; d[i+1]=g/n; d[i+2]=b/n; d[i+3]=255; changed=true; }
+      }
+    }
+    if(!changed) break;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+// Build the final, upload-ready 585x559 canvas: always-transparent background,
+// faces + drawing + holes, with seam bleed applied.
+function buildExportCanvas(){
+  renderFaceLayer();
+  const d = D(), filter = adjustFilter(d);
+  const c = document.createElement('canvas'); c.width = TEMPLATE_W; c.height = TEMPLATE_H;
+  const ctx = c.getContext('2d');
+  if(filter === 'none'){
+    compositeArtwork(ctx, d);
+  } else {
+    // recolour the whole template uniformly, exactly like the on-screen preview
+    adctx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+    compositeArtwork(adctx, d);
+    ctx.save(); ctx.filter = filter; ctx.drawImage(adjustLayer, 0,0); ctx.restore();
+  }
+  // Snap edge texels to solid/clear so there's no semi-transparent fringe (which Roblox shows
+  // as a gap). NO colour buffer/skirt is added around the faces — the mapping stays exact.
+  hardenAlpha(c, 32);
+  return c;
+}
+
+function drawFaceImage(ctx, f, s){
+  const [x,y,w,h] = f.rect, img = s.img;
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  if(s.fit === 'tile'){
+    const sc = s.scale || 1;
+    const tw = Math.max(1, Math.round(iw*sc)), th = Math.max(1, Math.round(ih*sc));
+    const tc = document.createElement('canvas'); tc.width = tw; tc.height = th;
+    tc.getContext('2d').drawImage(img, 0,0, tw, th);
+    const pat = ctx.createPattern(tc, 'repeat');
+    ctx.translate(s.ox||0, s.oy||0);
+    ctx.fillStyle = pat;
+    ctx.fillRect(x-(s.ox||0), y-(s.oy||0), w, h);
+  } else {
+    const cx = x + w/2 + (s.ox||0), cy = y + h/2 + (s.oy||0);
+    ctx.translate(cx, cy);
+    if(s.rot) ctx.rotate(s.rot * Math.PI/180);
+    let dw, dh;
+    if(s.fit === 'stretch'){ dw = w*(s.scale||1); dh = h*(s.scale||1); }
+    else {
+      const base = (s.fit === 'contain') ? Math.min(w/iw, h/ih) : Math.max(w/iw, h/ih);
+      const sc = base * (s.scale||1);
+      dw = iw*sc; dh = ih*sc;
+    }
+    ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
+  }
+  ctx.restore();
+}
+
+//------------------------------------------------------------------
+//  Draw the guide / labels / selection overlay (never exported)
+//------------------------------------------------------------------
+// keep outlines ~constant (super thin) on screen no matter the zoom level
+function thinLine(){ return Math.max(0.3, 0.7/zoom); }
+function renderGuide(){
+  const d = D();
+  sizeGuideCanvas();
+  gctx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  const tw = thinLine();
+
+  // pass 1: official colours on empty faces, then punch out wherever the
+  // artwork (faces or free paint) actually has content so the user's work shows.
+  if(guideOn){
+    for(const f of FACES){
+      const s = d.faces[keyOf(f)];
+      const empty = !s || (!s.color && !s.img);
+      if(empty && !d.base){ const [x,y,w,h] = f.rect; gctx.fillStyle = FACE_COLORS[f.face]; gctx.fillRect(x,y,w,h); }
+    }
+    gctx.save();
+    gctx.globalCompositeOperation = 'destination-out';
+    gctx.drawImage(faceLayer, 0,0);
+    gctx.drawImage(d.paint, 0,0);
+    gctx.restore();
+  }
+
+  // pass 2: borders, dashed R15 limits, labels
+  for(const f of FACES){
+    const [x,y,w,h] = f.rect;
+    const s = d.faces[keyOf(f)];
+    const empty = !s || (!s.color && !s.img);
+    const col = FACE_COLORS[f.face];
+    if(guideOn){
+      gctx.strokeStyle = empty ? 'rgba(0,0,0,.22)' : 'rgba(255,255,255,.5)';
+      gctx.lineWidth = tw;
+      gctx.strokeRect(x+0.5, y+0.5, w-1, h-1);     // super-thin section border
+      if(f.part!=='torso' && (f.face==='front'||f.face==='back'||f.face==='left'||f.face==='right')){
+        gctx.save();
+        gctx.setLineDash([5,4]);
+        gctx.strokeStyle = empty ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.3)';
+        gctx.lineWidth = tw;
+        const yy = y + Math.round(h*0.625) + 0.5;
+        gctx.beginPath(); gctx.moveTo(x+2, yy); gctx.lineTo(x+w-2, yy); gctx.stroke();
+        gctx.restore();
+      }
+    }
+    if(labelsOn){ drawFaceLabel(f, empty, col); }
+  }
+
+  if(guideOn){ drawBranding(); }
+  if(selected && faceByKey[selected]) drawSelection(faceByKey[selected].rect);
+  if(hovered && hovered!==selected && tool==='select' && faceByKey[hovered]) drawHover(faceByKey[hovered].rect);
+
+  // brush/eraser cursor ring
+  if(tool==='brush' && cursorPos && !xform){
+    gctx.save();
+    gctx.strokeStyle = eraseMode ? 'rgba(255,100,170,.95)' : 'rgba(255,255,255,.85)';
+    gctx.lineWidth = 1.5;
+    gctx.beginPath(); gctx.arc(cursorPos.x, cursorPos.y, Math.max(1.5, brushSize/2), 0, Math.PI*2); gctx.stroke();
+    gctx.restore();
+  }
+  if(xform) drawXform();
+}
+
+function drawFaceLabel(f, empty, col){
+  const [x,y,w,h] = f.rect;
+  if(empty && guideOn){
+    const isTorso = (f.part==='torso');
+    // torso uses full words on its wide faces, but single letters on the narrow R/L sides
+    let txt, fs;
+    if(isTorso && f.face!=='left' && f.face!=='right'){ txt = FACE_FULL[f.face]; fs = Math.min(28, h*0.42); }
+    else { txt = FACE_LETTER[f.face]; fs = isTorso ? 30 : 22; }
+    gctx.fillStyle = 'rgba(255,255,255,.92)';
+    gctx.font = '700 ' + fs + 'px -apple-system, Segoe UI, sans-serif';
+    gctx.textAlign = 'center'; gctx.textBaseline = 'middle';
+    gctx.fillText(txt, x+w/2, y+h/2);
+  } else {
+    // small corner chip so the user still knows which face it is
+    const tag = FACE_LETTER[f.face];
+    gctx.font = '700 11px -apple-system, Segoe UI, sans-serif';
+    const tw = 16;
+    gctx.fillStyle = col;
+    gctx.fillRect(x+2, y+2, tw, 14);
+    gctx.fillStyle = '#fff';
+    gctx.textAlign = 'center'; gctx.textBaseline = 'middle';
+    gctx.fillText(tag, x+2+tw/2, y+2+7);
+  }
+}
+
+function drawBranding(){
+  gctx.save();
+  gctx.textAlign='left'; gctx.textBaseline='alphabetic';
+  gctx.fillStyle = 'rgba(40,40,40,.55)';
+  gctx.font = '800 26px -apple-system, Segoe UI, sans-serif';
+  gctx.fillText('ROBLOX', 392, 250);
+  gctx.fillStyle = 'rgba(40,40,40,.45)';
+  gctx.font = '600 12px -apple-system, Segoe UI, sans-serif';
+  gctx.fillText((mode==='shirt'?'Shirt':'Pants') + ' Template', 393, 266);
+  // part captions
+  gctx.fillStyle = 'rgba(255,255,255,.30)';
+  gctx.font = '800 15px -apple-system, Segoe UI, sans-serif';
+  gctx.fillText('TORSO', 392, 36);
+  const limb = mode==='shirt' ? 'ARM' : 'LEG';
+  gctx.fillText('RIGHT '+limb, 30, 552);
+  gctx.fillText('LEFT '+limb, 470, 552);
+  gctx.restore();
+}
+
+function drawSelection(rect){
+  const [x,y,w,h] = rect;
+  gctx.save();
+  gctx.lineWidth = Math.max(0.8, 1.3/zoom);   // plain super-thin line, no animation
+  gctx.strokeStyle = '#4cc2ff';
+  gctx.strokeRect(x+0.5, y+0.5, w-1, h-1);
+  gctx.restore();
+}
+function drawHover(rect){
+  const [x,y,w,h] = rect;
+  gctx.save();
+  gctx.fillStyle = 'rgba(76,139,245,.18)';
+  gctx.fillRect(x,y,w,h);
+  gctx.strokeStyle = 'rgba(76,139,245,.9)'; gctx.lineWidth = Math.max(0.6, 1.3/zoom);
+  gctx.strokeRect(x+0.5,y+0.5,w-1,h-1);
+  gctx.restore();
+}
+
+//==================================================================
+//  Hit testing & pointer interaction
+//==================================================================
+function canvasCoords(e){
+  const r = guideCanvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) * (TEMPLATE_W / r.width),
+    y: (e.clientY - r.top)  * (TEMPLATE_H / r.height)
+  };
+}
+function hitFace(px, py){
+  for(const f of FACES){
+    const [x,y,w,h] = f.rect;
+    if(px>=x && px<x+w && py>=y && py<y+h) return f;
+  }
+  return null;
+}
+
+let dragging = null;   // {key, startX, startY, ox, oy}
+let drawing = null;    // {x0,y0,x1,y1,lx,ly}
+
+guideCanvas.addEventListener('pointerdown', e => {
+  if(_pinchD) return;                       // ignore while pinch-zooming
+  const p = canvasCoords(e);
+  if(xform){
+    const id = xfHit(p.x, p.y);
+    if(id){ xfDrag = { mode:id, sx:p.x, sy:p.y, start:{ cx:xform.cx, cy:xform.cy, scale:xform.scale, rot:xform.rot, src:{...xform.src} } }; guideCanvas.setPointerCapture(e.pointerId); }
+    return;
+  }
+  if(alignMode){
+    const hit = hitTest(p.x, p.y);
+    if(hit){
+      alSel = hit.key;
+      alDrag = { key:hit.key, handle:hit.handle, sx:p.x, sy:p.y, b0:{...alBoxes[hit.key]} };
+      guideCanvas.setPointerCapture(e.pointerId);
+    } else { alSel = null; }
+    renderAlignPreview();
+    return;
+  }
+  if(tool === 'select'){
+    const im = placedAt(p.x, p.y);
+    if(im){ editPlaced(im); return; }          // click a placed image to edit it again
+    const f = hitFace(p.x, p.y);
+    if(!f){ select(null); return; }
+    const key = keyOf(f);
+    select(key);
+    const s = st(key,false);
+    if(s && s.img){
+      dragging = { key, startX:p.x, startY:p.y, ox:s.ox||0, oy:s.oy||0, undoPushed:false };
+      guideCanvas.setPointerCapture(e.pointerId);
+    }
+    return;
+  }
+  // drawing tools
+  pushUndo();
+  drawing = { x0:p.x, y0:p.y, x1:p.x, y1:p.y, lx:p.x, ly:p.y };
+  guideCanvas.setPointerCapture(e.pointerId);
+  if(tool === 'brush'){ strokeDab(p.x, p.y); renderComposite(); }
+});
+
+guideCanvas.addEventListener('pointermove', e => {
+  if(_pinchD){ drawing=null; dragging=null; return; }   // ignore while pinch-zooming
+  const p = canvasCoords(e);
+  if(xform){
+    if(xfDrag){ xfApply(xfDrag.mode, p.x, p.y, xfDrag.start); renderGuide(); updateXformInfo(); }
+    else { const id=xfHit(p.x,p.y); guideCanvas.style.cursor = id==='rot'?'grab':(id==='move'?'move':(id?'crosshair':'default')); }
+    return;
+  }
+  if(alignMode){
+    if(alDrag){
+      dragBox(alDrag.key, alDrag.handle, p.x-alDrag.sx, p.y-alDrag.sy, alDrag.b0, e.shiftKey);  // hold Shift = free
+      renderAlignPreview();
+    } else {
+      const hit = hitTest(p.x, p.y);
+      guideCanvas.style.cursor = hit ? HANDLE_CURSOR[hit.handle] : 'grab';
+    }
+    return;
+  }
+  cursorPos = (tool !== 'select') ? p : null;
+  const f = hitFace(p.x, p.y);
+  const k = f ? keyOf(f) : null;
+  const hoverChanged = (k !== hovered);
+  if(hoverChanged){ hovered = k; document.getElementById('sbHover').textContent = f ? (partName(f.part,mode)+' · '+FACE_FULL[f.face]) : '—'; }
+
+  if(tool === 'select'){
+    if(dragging){
+      if(!dragging.undoPushed){ pushUndo(); dragging.undoPushed = true; }
+      const s = st(dragging.key,false);
+      if(s){
+        s.ox = dragging.ox + (p.x - dragging.startX);   // accurate — no edge snapping
+        s.oy = dragging.oy + (p.y - dragging.startY);
+        renderArt();
+      }
+    } else {
+      guideCanvas.style.cursor = placedAt(p.x,p.y) ? 'move' : 'default';
+      if(hoverChanged) renderGuide();
+    }
+    return;
+  }
+  // drawing tools
+  if(drawing){
+    if(tool === 'brush'){
+      strokeSegment(drawing.lx, drawing.ly, p.x, p.y);
+      drawing.lx = p.x; drawing.ly = p.y;
+      renderComposite();
+    } else {
+      const q = constrain(drawing.x0, drawing.y0, p.x, p.y, e.shiftKey);
+      drawing.x1 = q.x; drawing.y1 = q.y;
+      renderComposite();                                    // committed art + guide
+      drawShape(gctx, tool, drawing.x0, drawing.y0, drawing.x1, drawing.y1, true, eraseMode); // live preview on top
+    }
+  } else {
+    renderGuide();   // cursor ring follows
+  }
+});
+
+guideCanvas.addEventListener('pointerup', e => {
+  if(xform){ xfDrag = null; return; }
+  if(alignMode){ alDrag = null; return; }
+  if(tool === 'select'){ dragging = null; return; }
+  if(drawing){
+    if(tool !== 'brush'){
+      const d = D();
+      const ctx = eraseMode ? d.erase.getContext('2d') : d.paint.getContext('2d');
+      drawShape(ctx, tool, drawing.x0, drawing.y0, drawing.x1, drawing.y1, false, eraseMode);
+    }
+    drawing = null;
+    renderComposite();
+  }
+});
+guideCanvas.addEventListener('pointerleave', () => { hovered=null; cursorPos=null; document.getElementById('sbHover').textContent='—'; renderGuide(); });
+
+//==================================================================
+//  Drawing helpers
+//==================================================================
+function paintCtx(){ const d=D(); return eraseMode ? d.erase.getContext('2d') : d.paint.getContext('2d'); }
+function strokeDab(x,y){
+  const ctx = paintCtx();
+  ctx.save(); clipFaces(ctx);
+  ctx.fillStyle = eraseMode ? '#000' : activeColor;
+  ctx.beginPath(); ctx.arc(x, y, Math.max(0.5, brushSize/2), 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function strokeSegment(x0,y0,x1,y1){
+  const ctx = paintCtx();
+  ctx.save(); clipFaces(ctx);
+  ctx.strokeStyle = eraseMode ? '#000' : activeColor;
+  ctx.lineWidth = brushSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  ctx.restore();
+}
+function shapePath(ctx, t, x0,y0,x1,y1){
+  ctx.beginPath();
+  if(t === 'rect'){ ctx.rect(Math.min(x0,x1), Math.min(y0,y1), Math.abs(x1-x0), Math.abs(y1-y0)); }
+  else if(t === 'ellipse'){ ctx.ellipse((x0+x1)/2, (y0+y1)/2, Math.abs(x1-x0)/2, Math.abs(y1-y0)/2, 0, 0, Math.PI*2); }
+  else if(t === 'triangle'){ const a=Math.min(x0,x1), b=Math.max(x0,x1), c=Math.min(y0,y1), d=Math.max(y0,y1); ctx.moveTo((a+b)/2, c); ctx.lineTo(b, d); ctx.lineTo(a, d); ctx.closePath(); }
+  else if(t === 'line'){ ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); }
+}
+function drawShape(ctx, t, x0,y0,x1,y1, preview, erase){
+  ctx.save();
+  clipFaces(ctx);   // shapes (and their preview) can only land inside the template faces
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = brushSize;
+  const stroking = (t === 'line' || !fillShape);
+  if(preview){
+    shapePath(ctx, t, x0,y0,x1,y1);
+    if(erase){
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#0c1018';
+      if(stroking){ ctx.strokeStyle = '#0c1018'; ctx.stroke(); } else { ctx.fill(); }
+      ctx.globalAlpha = 1; ctx.setLineDash([6,4]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,100,170,.95)';
+      shapePath(ctx, t, x0,y0,x1,y1); ctx.stroke();
+    } else {
+      ctx.globalAlpha = 0.85; ctx.fillStyle = activeColor; ctx.strokeStyle = activeColor;
+      if(stroking){ ctx.stroke(); } else { ctx.fill(); }
+    }
+  } else {
+    ctx.fillStyle = erase ? '#000' : activeColor;
+    ctx.strokeStyle = erase ? '#000' : activeColor;
+    shapePath(ctx, t, x0,y0,x1,y1);
+    if(stroking){ ctx.stroke(); } else { ctx.fill(); }
+  }
+  ctx.restore();
+}
+function constrain(x0,y0,x1,y1,shift){
+  // Snapping is opt-in via the "Perfect" toggle; holding Shift turns it OFF.
+  if(shift || !perfectSnap) return { x:x1, y:y1 };
+  if(tool === 'line'){
+    const dx = x1-x0, dy = y1-y0, len = Math.hypot(dx,dy);
+    const a = Math.round(Math.atan2(dy,dx) / (Math.PI/4)) * (Math.PI/4);
+    return { x: x0 + Math.cos(a)*len, y: y0 + Math.sin(a)*len };
+  }
+  const dx = x1-x0, dy = y1-y0, s = Math.max(Math.abs(dx), Math.abs(dy));
+  return { x: x0 + (dx<0?-s:s), y: y0 + (dy<0?-s:s) };
+}
+
+//==================================================================
+//  Undo / redo  (snapshot of the active template's full state)
+//==================================================================
+function serImages(d){ return (d.images||[]).map(im=>({ srcUrl:im.srcUrl, src:{...im.src}, cx:im.cx, cy:im.cy, scale:im.scale, rot:im.rot })); }
+async function deserImages(arr){ const out=[]; for(const im of (arr||[])){ try{ const img=await loadImage(im.srcUrl); out.push({ img, srcUrl:im.srcUrl, src:{...im.src}, cx:im.cx, cy:im.cy, scale:im.scale, rot:im.rot }); }catch(_){} } return out; }
+function serializeDesign(d){
+  const faces = {};
+  for(const k in d.faces){ const s = d.faces[k]; faces[k] = { color:s.color, src:s.src, fit:s.fit, scale:s.scale, rot:s.rot, ox:s.ox, oy:s.oy }; }
+  return { faces, baseSrc:d.baseSrc, bgTransparent:d.bgTransparent, bgColor:d.bgColor, adjust:{...d.adjust},
+           paintSrc:d.paint.toDataURL('image/png'), eraseSrc:d.erase.toDataURL('image/png'), images:serImages(d) };
+}
+async function applyDesignSnapshot(d, snap){
+  d.faces = {};
+  for(const k in snap.faces){
+    const s = snap.faces[k];
+    const ns = { color:s.color, img:null, src:s.src, fit:s.fit, scale:s.scale, rot:s.rot, ox:s.ox, oy:s.oy };
+    if(s.src) ns.img = await loadImage(s.src);
+    d.faces[k] = ns;
+  }
+  d.baseSrc = snap.baseSrc; d.base = snap.baseSrc ? await loadImage(snap.baseSrc) : null;
+  d.bgTransparent = snap.bgTransparent; d.bgColor = snap.bgColor;
+  d.adjust = snap.adjust ? {...snap.adjust} : { bright:100, sat:100, hue:0 };
+  const pc = d.paint.getContext('2d'); pc.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  if(snap.paintSrc){ pc.drawImage(await loadImage(snap.paintSrc), 0,0); }
+  const ec = d.erase.getContext('2d'); ec.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  if(snap.eraseSrc){ ec.drawImage(await loadImage(snap.eraseSrc), 0,0); }
+  d.images = await deserImages(snap.images);
+}
+function pushUndo(){
+  undoStack.push(serializeDesign(D()));
+  if(undoStack.length > 30) undoStack.shift();
+  redoStack.length = 0;
+  updateHistButtons();
+}
+async function undo(){
+  if(!undoStack.length) return;
+  redoStack.push(serializeDesign(D()));
+  await applyDesignSnapshot(D(), undoStack.pop());
+  select(null); syncBgInputs(); syncAdjustInputs(); renderArt(); updateHistButtons();
+}
+async function redo(){
+  if(!redoStack.length) return;
+  undoStack.push(serializeDesign(D()));
+  await applyDesignSnapshot(D(), redoStack.pop());
+  select(null); syncBgInputs(); syncAdjustInputs(); renderArt(); updateHistButtons();
+}
+function updateHistButtons(){
+  document.getElementById('btnUndo').disabled = !undoStack.length;
+  document.getElementById('btnRedo').disabled = !redoStack.length;
+}
+
+//==================================================================
+//  Selection -> panel sync
+//==================================================================
+function select(key){
+  selected = key;
+  const nameEl = document.getElementById('faceName');
+  const subEl  = document.getElementById('faceSub');
+  const sw     = document.getElementById('faceSwatch');
+  const tools  = document.getElementById('faceTools');
+  document.getElementById('sbSel').textContent = key ? labelFor(key) : 'none';
+
+  if(!key){
+    nameEl.textContent = 'Nothing selected';
+    subEl.textContent = 'Click a coloured region on the canvas';
+    sw.style.background=''; sw.className='checker';
+    tools.style.display = 'none';
+    renderGuide();
+    return;
+  }
+  const f = faceByKey[key];
+  nameEl.textContent = labelFor(key);
+  tools.style.display = 'block';
+  const s = st(key,false);
+  sw.style.backgroundImage = '';
+  if(s && s.img){
+    sw.className=''; sw.style.background='#11161d';
+    sw.style.backgroundImage='url('+s.src+')'; sw.style.backgroundSize='cover'; sw.style.backgroundPosition='center';
+    subEl.textContent = 'Imported image — recolour, replace, move/scale, or draw on it';
+  } else if(s && s.color){
+    sw.className=''; sw.style.background = s.color;
+    subEl.textContent = 'Solid colour '+s.color.toUpperCase()+' — recolour, replace, or draw on it';
+  } else {
+    sw.className='checker'; sw.style.background='';
+    subEl.textContent = 'Empty · '+f.rect[2]+'×'+f.rect[3]+'px — paint, fill, or add an image';
+  }
+  // sync image controls
+  const has = !!(s && s.img);
+  document.getElementById('imgctrls').classList.toggle('show', has);
+  if(s){
+    document.getElementById('imgFit').value = s.fit || 'cover';
+    document.getElementById('imgScale').value = s.scale ?? 1;
+    document.getElementById('imgRot').value = s.rot ?? 0;
+    updateImgValLabels();
+    if(s.color) document.getElementById('faceColor').value = s.color;
+  }
+  renderGuide();
+}
+function labelFor(key){ const f=faceByKey[key]; return partName(f.part,mode)+' · '+FACE_FULL[f.face]; }
+
+//==================================================================
+//  Face editing actions
+//==================================================================
+// A face is either a flat colour OR an image — setting a colour drops the image so it always shows.
+function setColor(s, color){ s.color = color; s.img = null; s.src = null; }
+function paintFace(key, color){ setColor(st(key,true), color); renderArt(); if(key===selected) select(key); }
+function clearFaceColor(key){ const s = st(key,false); if(s){ s.color = null; renderArt(); if(key===selected) select(key); } }
+
+function fillPart(part, color){
+  for(const f of FACES) if(f.part===part){ setColor(st(keyOf(f),true), color); }
+  renderArt(); if(selected) select(selected);
+}
+function fillAll(color){ for(const f of FACES) setColor(st(keyOf(f),true), color); renderArt(); if(selected) select(selected); }
+function fillFronts(color){
+  for(const f of FACES) if(f.face==='front'){ setColor(st(keyOf(f),true), color); }
+  renderArt(); if(selected) select(selected);
+}
+function floodEmpty(color){
+  for(const f of FACES){ const s = st(keyOf(f),false); if(!s || (!s.color && !s.img)) setColor(st(keyOf(f),true), color); }
+  renderArt(); if(selected) select(selected);
+}
+
+function updateCount(){
+  const d = D(); let n=0;
+  for(const f of FACES){ const s=d.faces[keyOf(f)]; if(s && (s.color||s.img)) n++; }
+  document.getElementById('sbCount').textContent = n;
+}
+
+//==================================================================
+//  Image loading helpers
+//==================================================================
+function loadImage(src){
+  if(imgCache[src]) return Promise.resolve(imgCache[src]);
+  return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>{ imgCache[src]=i; res(i); }; i.onerror=rej; i.src=src; });
+}
+function fileToDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+//==================================================================
+//  Wire up the UI
+//==================================================================
+// palette swatches
+const swWrap = document.getElementById('swatches');
+PALETTE.forEach(c => {
+  const d = document.createElement('div');
+  d.className='swatch'; d.style.background=c; d.title=c;
+  d.addEventListener('click', e => {
+    setActiveColor(c);
+    if(e.shiftKey){ pushUndo(); floodEmpty(c); toast('Flooded empty faces'); }
+    else if(selected){ pushUndo(); paintFace(selected, c); }
+    [...swWrap.children].forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+  });
+  swWrap.appendChild(d);
+});
+function setActiveColor(c){
+  activeColor = c.toUpperCase();
+  document.getElementById('mainColor').value = c;
+  document.getElementById('mainColorHex').value = activeColor;
+  document.getElementById('faceColor').value = c;
+}
+document.getElementById('mainColor').addEventListener('input', e=> setActiveColor(e.target.value));
+document.getElementById('mainColorHex').addEventListener('change', e=>{
+  let v = e.target.value.trim(); if(!v.startsWith('#')) v='#'+v;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)) setActiveColor(v); else e.target.value=activeColor;
+});
+
+// draw tools
+function setTool(t){
+  if(alignMode) finishAlign();        // finalise a pending import before switching tools
+  tool = t;
+  document.querySelectorAll('#toolGrid .toolbtn').forEach(x=>x.classList.toggle('active', x.dataset.tool===t));
+  if(t !== 'select') select(null);
+  guideCanvas.style.cursor = (t === 'select') ? 'default' : 'crosshair';
+  renderGuide();
+}
+document.querySelectorAll('#toolGrid .toolbtn').forEach(b=> b.addEventListener('click', ()=> setTool(b.dataset.tool)));
+document.getElementById('brushSize').addEventListener('input', e=>{ brushSize = +e.target.value; document.getElementById('sizeVal').textContent = brushSize+' px'; renderGuide(); });
+document.getElementById('fillShape').addEventListener('change', e=> fillShape = e.target.checked);
+document.getElementById('perfectSnap').addEventListener('change', e=> perfectSnap = e.target.checked);
+document.getElementById('eraseMode').addEventListener('change', e=>{ eraseMode = e.target.checked; document.getElementById('eraseToggle').classList.toggle('on', eraseMode); renderGuide(); });
+document.getElementById('btnClearPaint').addEventListener('click', ()=>{ pushUndo(); D().paint.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H); renderArt(); toast('Cleared drawing'); });
+document.getElementById('btnClearErase').addEventListener('click', ()=>{ pushUndo(); D().erase.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H); renderArt(); toast('Filled holes back in'); });
+
+// undo / redo
+document.getElementById('btnUndo').addEventListener('click', undo);
+document.getElementById('btnRedo').addEventListener('click', redo);
+
+// selected-face colour
+document.getElementById('faceColor').addEventListener('focus', ()=>{ if(selected) pushUndo(); });
+document.getElementById('faceColor').addEventListener('input', e=>{ if(selected) paintFace(selected, e.target.value); });
+document.getElementById('btnApplyColor').addEventListener('click', ()=>{ if(selected){ pushUndo(); paintFace(selected, document.getElementById('faceColor').value); } });
+document.getElementById('btnClearColor').addEventListener('click', ()=>{ if(selected){ pushUndo(); clearFaceColor(selected); } });
+document.getElementById('btnClearFace').addEventListener('click', ()=>{
+  if(!selected) return; pushUndo();
+  const s = st(selected,false); if(s){ s.color=null; s.img=null; s.src=null; }
+  const [x,y,w,h] = faceByKey[selected].rect;        // also wipe any drawing / holes in this face
+  D().paint.getContext('2d').clearRect(x,y,w,h);
+  D().erase.getContext('2d').clearRect(x,y,w,h);
+  renderArt(); select(selected); toast('Face cleared');
+});
+document.getElementById('btnFillGroup').addEventListener('click', ()=>{
+  if(!selected) return; pushUndo(); fillPart(faceByKey[selected].part, document.getElementById('faceColor').value); toast('Filled '+partName(faceByKey[selected].part,mode));
+});
+
+// face image upload
+document.getElementById('faceImg').addEventListener('change', async e=>{
+  const file = e.target.files[0]; if(!file || !selected) return;
+  pushUndo();
+  const src = await fileToDataURL(file); const img = await loadImage(src);
+  const s = st(selected,true); s.img=img; s.src=src; s.color=null; s.ox=0; s.oy=0; s.scale=1; s.rot=0; s.fit=s.fit||'cover';
+  renderArt(); select(selected); e.target.value=''; toast('Image added to face');
+});
+document.getElementById('btnClearImg').addEventListener('click', ()=>{
+  if(!selected) return; pushUndo(); const s=st(selected,false); if(s){ s.img=null; s.src=null; } renderArt(); select(selected);
+});
+document.getElementById('imgFit').addEventListener('change', e=>{ if(selected){ pushUndo(); st(selected,true).fit=e.target.value; renderArt(); } });
+document.getElementById('imgScale').addEventListener('pointerdown', ()=>{ if(selected) pushUndo(); });
+document.getElementById('imgRot').addEventListener('pointerdown', ()=>{ if(selected) pushUndo(); });
+document.getElementById('imgScale').addEventListener('input', e=>{ if(selected){ st(selected,true).scale=parseFloat(e.target.value); renderArt(); updateImgValLabels(); } });
+document.getElementById('imgRot').addEventListener('input', e=>{ if(selected){ st(selected,true).rot=parseFloat(e.target.value); renderArt(); updateImgValLabels(); } });
+function updateImgValLabels(){
+  document.getElementById('scaleVal').textContent = '×'+(parseFloat(document.getElementById('imgScale').value)).toFixed(2);
+  document.getElementById('rotVal').textContent = document.getElementById('imgRot').value+'°';
+}
+
+// quick fills
+document.getElementById('btnFillAll').addEventListener('click', ()=>{ pushUndo(); fillAll(activeColor); toast('Filled all faces'); });
+document.getElementById('btnFillTorso').addEventListener('click', ()=>{ pushUndo(); fillPart('torso', activeColor); toast('Filled torso'); });
+document.getElementById('btnFillLimbs').addEventListener('click', ()=>{ pushUndo(); fillPart('limbR',activeColor); fillPart('limbL',activeColor); toast('Filled '+(mode==='shirt'?'arms':'legs')); });
+document.getElementById('btnFillFronts').addEventListener('click', ()=>{ pushUndo(); fillFronts(activeColor); toast('Filled front faces'); });
+
+// whole-template colour adjustment (brightness / saturation / tint) — recolours every layer at once
+function updateAdjustLabels(){
+  document.getElementById('adjBrightVal').textContent = document.getElementById('adjBright').value + '%';
+  document.getElementById('adjSatVal').textContent    = document.getElementById('adjSat').value + '%';
+  document.getElementById('adjHueVal').textContent    = document.getElementById('adjHue').value + '°';
+}
+function syncAdjustInputs(){
+  const a = D().adjust || (D().adjust = { bright:100, sat:100, hue:0 });
+  document.getElementById('adjBright').value = a.bright;
+  document.getElementById('adjSat').value    = a.sat;
+  document.getElementById('adjHue').value    = a.hue;
+  updateAdjustLabels();
+}
+['adjBright','adjSat','adjHue'].forEach(id=>{
+  document.getElementById(id).addEventListener('pointerdown', ()=> pushUndo());   // one undo step per drag
+});
+document.getElementById('adjBright').addEventListener('input', e=>{ D().adjust.bright = +e.target.value; updateAdjustLabels(); renderComposite(); });
+document.getElementById('adjSat').addEventListener('input',   e=>{ D().adjust.sat    = +e.target.value; updateAdjustLabels(); renderComposite(); });
+document.getElementById('adjHue').addEventListener('input',   e=>{ D().adjust.hue    = +e.target.value; updateAdjustLabels(); renderComposite(); });
+document.getElementById('adjReset').addEventListener('click', ()=>{
+  const a = D().adjust;
+  if(a.bright===100 && a.sat===100 && a.hue===0){ toast('Already at defaults'); return; }
+  pushUndo(); D().adjust = { bright:100, sat:100, hue:0 }; syncAdjustInputs(); renderComposite(); toast('Adjustments reset');
+});
+
+// background is permanently transparent (locked) — no controls
+
+// import base PNG (flat underlay, for tracing)
+document.getElementById('importBase').addEventListener('change', async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  pushUndo();
+  const src=await fileToDataURL(file); const img=await loadImage(src);
+  D().base=img; D().baseSrc=src; renderArt(); e.target.value=''; toast('Imported template image');
+});
+
+//------------------------------------------------------------------
+//  SMART IMPORT — show the whole upload (never cropped) with the 18
+//  detected sections drawn over it as editable, resizable boxes. Nothing
+//  is cut until you press Separate.  CONTENT_BOX = bounds of all faces.
+//------------------------------------------------------------------
+const CONTENT_BOX = (()=>{ let a=1e9,b=1e9,c=-1,d=-1; for(const f of FACES){ const [x,y,w,h]=f.rect; a=Math.min(a,x); b=Math.min(b,y); c=Math.max(c,x+w); d=Math.max(d,y+h);} return {x:a,y:b,w:c-a,h:d-b}; })();
+let lastImport = null;                 // { img, imgW, imgH, imgDest:{x,y,w,h} } — whole upload, drawn fixed
+let alBoxes = null;                    // { 'part:face': {x,y,w,h} } in canvas px — one independently-editable box per face
+let alSel = null;                      // the face key currently selected for editing
+let alignMode = false, alDrag = null;  // alDrag = { key, handle, sx, sy, b0 }
+
+// Canvas px -> source-image px (the upload is drawn whole at imgDest).
+function canvasToSrc(px, py){
+  const d = lastImport.imgDest;
+  return { x:(px-d.x)/d.w*lastImport.imgW, y:(py-d.y)/d.h*lastImport.imgH };
+}
+// One face box measured in the upload's OWN pixels — i.e. what actually gets captured.
+function boxSrcSize(key){
+  const b = alBoxes[key], d = lastImport.imgDest;
+  return { w: b.w/d.w*lastImport.imgW, h: b.h/d.h*lastImport.imgH };
+}
+// Boxes start on the template's face slots, fitted over wherever the upload is actually
+// drawn — so a shorter/wider image can't push the top/bottom boxes off into the empty
+// margins (which made those faces come out blank). No detection from the image: for a
+// normal full-size template this is exactly the template layout.
+function defaultBoxes(){
+  const d = lastImport.imgDest, boxes = {};
+  for(const f of FACES){ const [x,y,w,h] = f.rect;
+    boxes[keyOf(f)] = { x: d.x + x/TEMPLATE_W*d.w, y: d.y + y/TEMPLATE_H*d.h, w: w/TEMPLATE_W*d.w, h: h/TEMPLATE_H*d.h };
+  }
+  return boxes;
+}
+
+// 4 corner handles only — with the ratio locked, corners resize cleanly from the opposite
+// corner. (Edge handles would also shift the box, which feels broken, so they're gone.)
+const HANDLES = [['nw',0,0],['ne',1,0],['se',1,1],['sw',0,1]];
+const HANDLE_CURSOR = { nw:'nwse-resize', se:'nwse-resize', ne:'nesw-resize', sw:'nesw-resize', move:'move' };
+function handlePoints(b){ return HANDLES.map(([id,fx,fy])=>({ id, x:b.x+fx*b.w, y:b.y+fy*b.h })); }
+// What's under the cursor: a handle of the selected box, else the top-most box body.
+function hitTest(px, py){
+  if(!alBoxes) return null;
+  const r = Math.max(7, 11/zoom);
+  if(alSel && alBoxes[alSel]){
+    for(const h of handlePoints(alBoxes[alSel])){ if(Math.abs(px-h.x)<=r && Math.abs(py-h.y)<=r) return { key:alSel, handle:h.id }; }
+  }
+  for(let i=FACES.length-1; i>=0; i--){ const k=keyOf(FACES[i]), b=alBoxes[k];
+    if(px>=b.x && px<=b.x+b.w && py>=b.y && py<=b.y+b.h) return { key:k, handle:'move' };
+  }
+  return null;
+}
+// Move / resize ONE face box. Resizing is LOCKED to the face's true ratio (so a section can
+// never be distorted), but it scales smoothly — the corner follows the cursor along the ratio
+// diagonal, anchored at the opposite corner, with no jumpy axis-snapping. (Free scaling is
+// only for dropped/imported images, handled separately in the transform tool.)
+function dragBox(key, handle, dx, dy, b0, shift){
+  const f = faceByKey[key], ar = f.rect[2]/f.rect[3], MIN = 14;
+  let x=b0.x, y=b0.y, w=b0.w, h=b0.h;
+  if(handle==='move'){ x+=dx; y+=dy; }
+  else {
+    const east = handle.includes('e'), south = handle.includes('s');
+    const ax = east ? b0.x : b0.x + b0.w;                 // anchor = opposite corner (stays put)
+    const ay = south ? b0.y : b0.y + b0.h;
+    const cx = (east ? b0.x + b0.w : b0.x) + dx;          // the corner being dragged
+    const cy = (south ? b0.y + b0.h : b0.y) + dy;
+    const tw = east ? (cx - ax) : (ax - cx);              // growth extents (positive = bigger)
+    const th = south ? (cy - ay) : (ay - cy);
+    let k = (ar*tw + th) / (ar*ar + 1);                   // project onto the ratio diagonal — smooth, no snap
+    let nw = k*ar, nh = k;
+    if(nw < MIN){ nw = MIN; nh = MIN/ar; }
+    if(nh < MIN){ nh = MIN; nw = MIN*ar; }
+    w = nw; h = nh;
+    x = east ? ax : ax - w;
+    y = south ? ay : ay - h;
+  }
+  alBoxes[key] = { x, y, w, h };
+}
+
+// Place the WHOLE upload on the canvas (NO crop, distortion-free), fit & centred.
+function computeImgDest(img){
+  const sw = img.naturalWidth||img.width, sh = img.naturalHeight||img.height;
+  const s = Math.min(TEMPLATE_W/sw, TEMPLATE_H/sh), dw = sw*s, dh = sh*s;
+  return { x:(TEMPLATE_W-dw)/2, y:(TEMPLATE_H-dh)/2, w:dw, h:dh };
+}
+
+
+function rgb2hex(c){ return '#' + c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join(''); }
+// Classify a face crop: empty, a single flat colour, or real artwork.
+// Opacity is measured over the whole crop, but the colour/variance is taken from an
+// inner region so anti-aliased edges or neighbour-bleed don't spoil flat-colour detection.
+function analyzeCrop(ctx, cw, ch){
+  const full = ctx.getImageData(0,0,cw,ch).data;
+  const Nf = cw*ch, sf = Math.max(1, Math.floor(Nf/3000));
+  let opaque=0, samp=0;
+  for(let i=0;i<Nf;i+=sf){ samp++; if(full[i*4+3]>24) opaque++; }
+  if(opaque===0 || opaque/samp < 0.005) return { empty:true };   // only a (near-)fully-transparent box is left empty
+  const opaqueFrac = opaque/samp;
+  const ix=Math.floor(cw*0.2), iy=Math.floor(ch*0.2), iw=Math.max(1,cw-2*ix), ih=Math.max(1,ch-2*iy);
+  const inner = ctx.getImageData(ix,iy,iw,ih).data;
+  const Ni = iw*ih, si = Math.max(1, Math.floor(Ni/2500));
+  let n=0, r=0,g=0,b=0;
+  for(let i=0;i<Ni;i+=si){ if(inner[i*4+3]>24){ r+=inner[i*4]; g+=inner[i*4+1]; b+=inner[i*4+2]; n++; } }
+  if(n===0) return { empty:false, solid:false, color:[128,128,128], opaqueFrac };
+  r/=n; g/=n; b/=n;
+  let v=0;
+  for(let i=0;i<Ni;i+=si){ if(inner[i*4+3]>24){ const dr=inner[i*4]-r, dg=inner[i*4+1]-g, db=inner[i*4+2]-b; v+=dr*dr+dg*dg+db*db; } }
+  const variance = v/n;
+  // Only treat a face as a flat colour swatch when it is TRULY uniform. Anything with a
+  // shape, logo or gradient stays a full-resolution image so the detector separates the
+  // sections without ever cropping the artwork that lives on them.
+  const solid = variance < 45 && opaqueFrac > 0.96;
+  return { empty:false, solid, color:[r,g,b], opaqueFrac };
+}
+
+// Separate every face by sampling its FULL detection box straight from the upload — no
+// trimming, no cropping. A genuinely uniform box becomes an editable colour swatch;
+// anything else is kept as a full-resolution image, so artwork is never cut off. Source
+// regions that fall outside the image simply come through transparent.
+async function sliceSections(){
+  if(!lastImport || !alBoxes) return { filled:0, solids:0, images:0 };
+  const d = D();
+  d.faces = {}; d.base = null; d.baseSrc = null;
+  d.paint.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  d.erase.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  const img = lastImport.img;
+  let filled = 0, solids = 0, images = 0;
+  for(const f of FACES){
+    const b = alBoxes[keyOf(f)];
+    const p0 = canvasToSrc(b.x, b.y), p1 = canvasToSrc(b.x+b.w, b.y+b.h);
+    const sx = p0.x, sy = p0.y, sw = p1.x-p0.x, sh = p1.y-p0.y;
+    const [tx,ty,tw,th] = f.rect;
+    const q = Math.max(1, Math.min(4, (Math.abs(sw)/tw + Math.abs(sh)/th)/2));   // up to 4x detail
+    const cw = Math.max(1,Math.round(tw*q)), ch = Math.max(1,Math.round(th*q));
+    const fc = document.createElement('canvas'); fc.width=cw; fc.height=ch;
+    const fctx = fc.getContext('2d'); fctx.imageSmoothingEnabled=true; fctx.imageSmoothingQuality='high';
+    // clamp the source rect to the image, so a box dragged partly past the edge captures
+    // the overlapping part (and never throws); anything beyond the upload stays transparent
+    const L=Math.max(0,sx), T=Math.max(0,sy), R=Math.min(lastImport.imgW,sx+sw), Bm=Math.min(lastImport.imgH,sy+sh);
+    if(R>L && Bm>T) fctx.drawImage(img, L,T, R-L,Bm-T, (L-sx)/sw*cw, (T-sy)/sh*ch, (R-L)/sw*cw, (Bm-T)/sh*ch);
+    const an = analyzeCrop(fctx, cw, ch);
+    if(an.empty) continue;                                 // leave genuinely-empty boxes see-through
+    const s = st(keyOf(f), true);
+    s.scale=1; s.rot=0; s.ox=0; s.oy=0;
+    // ALWAYS keep the section's real pixels as a full image — never collapse it to one flat
+    // colour. (Flattening was turning subtly-textured faces, e.g. a shirt front, into plain
+    // white and discarding the texture the user could clearly see.)
+    const url = fc.toDataURL('image/png'); s.color=null; s.src=url; s.fit='stretch'; s.img = await loadImage(url); images++;
+    filled++;
+  }
+  renderArt(); select(null);
+  return { filled, solids, images };
+}
+
+// Live overlay: the WHOLE upload shown clearly, with the 18 section boxes drawn straight
+// on top of it — each labelled with its face, the selected one carrying handles and a
+// live pixel-dimension readout. Nothing here is cut; it's purely a preview.
+function renderAlignPreview(){
+  if(!lastImport || !alBoxes) return;
+  sizeGuideCanvas();
+  actx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);          // transparent → checkerboard shows behind
+  gctx.clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+  const d = lastImport.imgDest;
+  gctx.save();
+  gctx.imageSmoothingQuality = 'high';
+  gctx.globalAlpha = 0.97;
+  gctx.drawImage(lastImport.img, 0,0, lastImport.imgW, lastImport.imgH, d.x, d.y, d.w, d.h);  // never cropped
+  gctx.globalAlpha = 1;
+  const fs = Math.max(8, 11/zoom), px = 1/zoom;        // px = one screen pixel, in canvas units
+  for(const f of FACES){
+    const k = keyOf(f), b = alBoxes[k], sel = (k===alSel);
+    // very subtle fill; the selected face gets a faint warm tint
+    gctx.fillStyle = sel ? 'rgba(255,210,63,.12)' : 'rgba(255,255,255,.035)';
+    gctx.fillRect(b.x, b.y, b.w, b.h);
+    // thin outline — dark on normal faces, a thin gold line on the selected one
+    gctx.lineWidth = (sel ? 1.3 : 0.7) * px;
+    gctx.strokeStyle = sel ? 'rgba(255,205,48,.95)' : 'rgba(8,11,16,.55)';
+    gctx.strokeRect(b.x, b.y, b.w, b.h);
+    // small face-letter chip in the corner (keeps the artwork itself clear)
+    gctx.font = '700 '+fs+'px -apple-system, Segoe UI, sans-serif';
+    gctx.textAlign = 'left'; gctx.textBaseline = 'top';
+    const lab = FACE_LETTER[f.face], lw = gctx.measureText(lab).width + 4*px;
+    gctx.fillStyle = sel ? 'rgba(255,205,48,.95)' : 'rgba(8,11,16,.5)';
+    gctx.fillRect(b.x+2*px, b.y+2*px, lw, fs+2*px);
+    gctx.fillStyle = sel ? '#161002' : 'rgba(255,255,255,.85)';
+    gctx.fillText(lab, b.x+4*px, b.y+3.5*px);
+  }
+  // selected box: small crisp handles + its source pixel size
+  if(alSel && alBoxes[alSel]){
+    const b = alBoxes[alSel], hs = Math.max(2.5, 4.5*px);
+    for(const h of handlePoints(b)){
+      gctx.fillStyle = '#fff'; gctx.fillRect(h.x-hs, h.y-hs, hs*2, hs*2);
+      gctx.lineWidth = px; gctx.strokeStyle = 'rgba(8,11,16,.7)'; gctx.strokeRect(h.x-hs, h.y-hs, hs*2, hs*2);
+    }
+    const sp = boxSrcSize(alSel), label = Math.round(sp.w)+' × '+Math.round(sp.h)+' px';
+    gctx.font = '700 '+Math.max(9, 12/zoom)+'px -apple-system, Segoe UI, sans-serif';
+    gctx.textAlign = 'left';
+    let ly;
+    if(b.y - 5*px - fs > 2){ ly = b.y - 5*px; gctx.textBaseline = 'bottom'; }   // above the box…
+    else { ly = b.y + b.h + 5*px; gctx.textBaseline = 'top'; }                   // …or below if no room
+    gctx.lineWidth = 3*px; gctx.strokeStyle = 'rgba(8,11,16,.92)';
+    gctx.strokeText(label, b.x, ly);
+    gctx.fillStyle = '#ffd23f'; gctx.fillText(label, b.x, ly);
+  }
+  gctx.restore();
+  updateDimReadout();
+}
+function updateDimReadout(){
+  const el = document.getElementById('alDims');
+  if(!el || !lastImport || !alBoxes) return;
+  if(alSel && alBoxes[alSel]){
+    const f = faceByKey[alSel], sp = boxSrcSize(alSel);
+    el.innerHTML = '<b>'+FACE_FULL[f.face]+'</b> · '+Math.round(sp.w)+'×'+Math.round(sp.h)+' px';
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function showAlign(note){
+  alignMode = true; alDrag = null; alSel = null; guideCanvas.style.cursor = 'grab';
+  document.getElementById('alignPanel').style.display = 'block';
+  document.getElementById('alignMode').textContent = note ? '· '+note : '';
+  renderAlignPreview();
+}
+function hideAlign(){
+  alignMode = false; alDrag = null; alSel = null;
+  guideCanvas.style.cursor = (tool==='select') ? 'default' : 'crosshair';
+  document.getElementById('alignPanel').style.display='none';
+  lastImport = null; alBoxes = null;
+}
+
+document.getElementById('smartImport').addEventListener('change', async e=>{
+  const file = e.target.files[0]; if(!file) return;
+  try{
+    pushUndo();
+    toast('Loading…');
+    const src = await fileToDataURL(file); const img = await loadImage(src);
+    const iw = img.naturalWidth||img.width, ih = img.naturalHeight||img.height;
+    lastImport = { img, imgW:iw, imgH:ih, imgDest: computeImgDest(img) };
+    alBoxes = defaultBoxes();                  // one box per face, on the standard slots
+    const d = D(); d.faces={}; d.base=null; d.baseSrc=null;
+    d.paint.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+    d.erase.getContext('2d').clearRect(0,0,TEMPLATE_W,TEMPLATE_H);
+    select(null);
+    showAlign('click a box to scale it');       // boxes start on the template's own slots — no detection
+    toast('Line the boxes up with your image, then build the template', 'ok');
+  }catch(err){ console.error(err); toast('Could not import that image', 'err'); }
+  e.target.value = '';
+});
+document.getElementById('alReset').addEventListener('click', ()=>{ alBoxes = defaultBoxes(); alSel = null; renderAlignPreview(); });
+let alBusy = false;
+async function finishAlign(){
+  if(!alignMode || alBusy) return;              // guard against a double commit
+  alBusy = true;
+  const sel = alSel;                            // remember which section you were scaling
+  const r = await sliceSections();
+  hideAlign(); renderArt();
+  if(sel && D().faces[sel]){ setTool('select'); select(sel); }   // …then select it, ready to edit
+  alBusy = false;
+  toast('Built the template — '+r.filled+' of 18 sections placed', 'ok');
+}
+document.getElementById('alDone').addEventListener('click', finishAlign);
+
+// reset current template
+document.getElementById('btnResetMode').addEventListener('click', ()=>{
+  if(!confirm('Clear the entire '+mode+' template?')) return;
+  pushUndo(); designs[mode]=blankDesign(); select(null); syncBgInputs(); syncAdjustInputs(); renderArt(); toast('Template cleared — Undo to restore');
+});
+
+// mode switching
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===m));
+  document.querySelectorAll('#modeSeg2 button').forEach(b=>b.classList.toggle('active', b.dataset.mode===m));
+  const lw = mode==='shirt'?'arms':'legs';
+  document.querySelectorAll('.limbsWord').forEach(x=>x.textContent=lw);
+  document.getElementById('sbMode').textContent = mode==='shirt'?'Shirt':'Pants';
+  document.getElementById('pvTitle').textContent = (mode==='shirt'?'Shirt':'Pants')+' preview';
+  undoStack.length = 0; redoStack.length = 0; updateHistButtons();
+  hideAlign();
+  select(null); syncBgInputs(); syncAdjustInputs(); renderArt(); buildRig();
+}
+document.querySelectorAll('#modeSeg button, #modeSeg2 button').forEach(b=>{
+  b.addEventListener('click', ()=> setMode(b.dataset.mode));
+});
+function syncBgInputs(){ D().bgTransparent = true; /* background locked to transparent */ }
+
+// guide / label toggles
+document.getElementById('guideToggle').addEventListener('change', e=>{ guideOn=e.target.checked; renderGuide(); });
+document.getElementById('labelToggle').addEventListener('change', e=>{ labelsOn=e.target.checked; renderGuide(); });
+
+// zoom + pan  (canvasWrap is translate()+scale(); pinch zooms toward the cursor, two-finger scroll pans)
+let userZoomed = false, panX = 0, panY = 0;
+const MINZ = 0.2, MAXZ = 6;
+const _stageEl = document.getElementById('stageScroll');
+function clampPan(){
+  const sw = _stageEl.clientWidth, sh = _stageEl.clientHeight, cw = TEMPLATE_W*zoom, ch = TEMPLATE_H*zoom, m = 90;
+  panX = Math.min(sw-m, Math.max(m-cw, panX));
+  panY = Math.min(sh-m, Math.max(m-ch, panY));
+}
+function applyZoom(){
+  clampPan();
+  document.getElementById('canvasWrap').style.transform = 'translate('+panX+'px,'+panY+'px) scale('+zoom+')';
+  document.getElementById('zoomLabel').textContent = Math.round(zoom*100)+'%';
+  if(alignMode) renderAlignPreview(); else renderGuide();   // re-bake thin outlines for the new zoom
+}
+function fitZoom(){
+  if(!_stageEl.clientWidth || !_stageEl.clientHeight) return;
+  const z = Math.min((_stageEl.clientWidth-72)/TEMPLATE_W, (_stageEl.clientHeight-72)/TEMPLATE_H);
+  zoom = Math.max(MINZ, Math.min(MAXZ, z));
+  panX = (_stageEl.clientWidth - TEMPLATE_W*zoom)/2;
+  panY = (_stageEl.clientHeight - TEMPLATE_H*zoom)/2;
+  applyZoom();
+}
+// zoom toward a screen point, keeping that point fixed under the cursor / pinch centre
+function zoomAt(clientX, clientY, factor){
+  const sr = _stageEl.getBoundingClientRect();
+  const sx = clientX - sr.left, sy = clientY - sr.top;
+  const cpx = (sx - panX)/zoom, cpy = (sy - panY)/zoom;     // canvas-space point under the cursor
+  const nz = Math.max(MINZ, Math.min(MAXZ, zoom*factor));
+  if(nz === zoom) return;
+  zoom = nz; userZoomed = true;
+  panX = sx - cpx*zoom; panY = sy - cpy*zoom;
+  applyZoom();
+}
+function zoomCenter(factor){ const sr=_stageEl.getBoundingClientRect(); zoomAt(sr.left+sr.width/2, sr.top+sr.height/2, factor); }
+document.getElementById('zoomIn').addEventListener('click', ()=> zoomCenter(1.2));
+document.getElementById('zoomOut').addEventListener('click', ()=> zoomCenter(1/1.2));
+document.getElementById('zoomFit').addEventListener('click', ()=>{ userZoomed=false; fitZoom(); });
+
+// wheel: ctrl/trackpad-pinch = zoom toward cursor; otherwise scroll = pan
+_stageEl.addEventListener('wheel', e=>{
+  e.preventDefault();
+  if(e.ctrlKey){
+    const f = Math.max(0.85, Math.min(1.18, Math.exp(-e.deltaY*0.0125)));
+    zoomAt(e.clientX, e.clientY, f);
+  } else {
+    panX -= e.deltaX; panY -= e.deltaY; applyZoom();
+  }
+}, {passive:false});
+
+// two-finger touch: pinch to zoom + drag to pan together
+let _pinchC = null;
+const _tdist = t => Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+const _tcen  = t => ({ x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2 });
+_stageEl.addEventListener('touchstart', e=>{
+  if(e.touches.length===2){ _pinchD=_tdist(e.touches); _pinchC=_tcen(e.touches); drawing=null; dragging=null; alDrag=null; }
+}, {passive:false});
+_stageEl.addEventListener('touchmove', e=>{
+  if(e.touches.length===2 && _pinchD){
+    e.preventDefault();
+    const d=_tdist(e.touches), c=_tcen(e.touches);
+    panX += (c.x - _pinchC.x); panY += (c.y - _pinchC.y);    // two-finger pan
+    if(d>0){ zoomAt(c.x, c.y, d/_pinchD); } else { applyZoom(); }
+    _pinchD=d; _pinchC=c;
+  }
+}, {passive:false});
+_stageEl.addEventListener('touchend', e=>{ if(e.touches.length<2){ _pinchD=null; _pinchC=null; } });
+
+// keyboard
+const TOOL_KEYS = { v:'select', b:'brush', l:'line', r:'rect', o:'ellipse', t:'triangle' };
+window.addEventListener('keydown', e=>{
+  const inField = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);
+  const meta = e.metaKey || e.ctrlKey;
+  if(meta && (e.key==='z' || e.key==='Z')){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if(meta && (e.key==='y' || e.key==='Y')){ e.preventDefault(); redo(); return; }
+  if(alignMode && e.key==='Enter'){ e.preventDefault(); finishAlign(); return; }   // Enter = separate & select the scaled sections
+  if(xform && !inField){
+    if(e.key==='Enter'){ e.preventDefault(); placeXform(); return; }
+    if(e.key==='Escape'){ e.preventDefault(); cancelXform(); return; }
+    if(e.key==='Delete' || e.key==='Backspace'){ e.preventDefault(); deleteXform(); return; }
+    if(e.key.indexOf('Arrow')===0){ const s=e.shiftKey?10:1;
+      if(e.key==='ArrowLeft') xform.cx-=s; else if(e.key==='ArrowRight') xform.cx+=s;
+      else if(e.key==='ArrowUp') xform.cy-=s; else if(e.key==='ArrowDown') xform.cy+=s;
+      renderGuide(); updateXformInfo(); e.preventDefault(); return; }
+  }
+  if(inField || meta) return;
+
+  const k = e.key.toLowerCase();
+  if(TOOL_KEYS[k]){ setTool(TOOL_KEYS[k]); return; }
+  if(k === 'e'){ document.getElementById('eraseMode').click(); return; }
+
+  if(!selected) return;
+  const s = st(selected,false);
+  if(e.key==='Delete' || e.key==='Backspace'){ pushUndo(); if(s){ s.color=null; s.img=null; s.src=null; } renderArt(); select(selected); e.preventDefault(); }
+  if(s && s.img){
+    const step = e.shiftKey?10:2; let m=false;
+    if(e.key==='ArrowLeft'){ s.ox-=step; m=true; } if(e.key==='ArrowRight'){ s.ox+=step; m=true; }
+    if(e.key==='ArrowUp'){ s.oy-=step; m=true; }   if(e.key==='ArrowDown'){ s.oy+=step; m=true; }
+    if(m){ renderArt(); e.preventDefault(); }
+  }
+});
+// Track Shift globally so every snap behaviour can honour "hold Shift = no snapping".
+window.addEventListener('keydown', e=>{ if(e.key==='Shift') shiftHeld = true; });
+window.addEventListener('keyup',   e=>{ if(e.key==='Shift') shiftHeld = false; });
+window.addEventListener('blur',    ()=>{ shiftHeld = false; });
+
+//==================================================================
+//  Export PNG / save / load
+//==================================================================
+document.getElementById('btnExportPng').addEventListener('click', ()=>{
+  // export the always-transparent composite (not the editor view)
+  buildExportCanvas().toBlob(blob=>{
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    const ts=new Date().toISOString().slice(0,10);
+    const typed=document.getElementById('exportName').value.trim();
+    const name=(typed || ('Roblox_'+mode+'_'+ts)).replace(/[^\w \-]+/g,'').trim().replace(/\s+/g,'_') || ('Roblox_'+mode);
+    a.href=url; a.download=name+'.png'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); a.remove();      // append so the custom filename is honoured
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    toast('PNG downloaded — 585×559, ready to upload','ok');
+  }, 'image/png');
+});
+
+// Full editable project = both templates, every face, the free-drawing, holes and every
+// placed image — so a load restores EVERYTHING exactly as you left it, still editable.
+function serializeProject(){
+  const out={ app:'roblox-clothing-studio', version:2, mode, designs:{} };
+  for(const m of ['shirt','pants']){
+    const d=designs[m]; const faces={};
+    for(const k in d.faces){ const s=d.faces[k]; faces[k]={ color:s.color, src:s.src, fit:s.fit, scale:s.scale, rot:s.rot, ox:s.ox, oy:s.oy }; }
+    out.designs[m]={ faces, baseSrc:d.baseSrc, bgTransparent:d.bgTransparent, bgColor:d.bgColor, adjust:{...d.adjust},
+                     paintSrc:d.paint.toDataURL('image/png'), eraseSrc:d.erase.toDataURL('image/png'), images:serImages(d) };
+  }
+  return out;
+}
+async function applyProject(data){
+  if(!data || !data.designs) throw new Error('bad project');
+  for(const m of ['shirt','pants']){
+    const src=data.designs[m]; if(!src){ designs[m]=blankDesign(); continue; }
+    const d=blankDesign(); d.bgTransparent=true; d.bgColor=src.bgColor||'#ffffff';
+    if(src.adjust) d.adjust={ bright:src.adjust.bright??100, sat:src.adjust.sat??100, hue:src.adjust.hue??0 };
+    if(src.baseSrc){ d.baseSrc=src.baseSrc; try{ d.base=await loadImage(src.baseSrc); }catch(_){} }
+    for(const k in src.faces){
+      const s=src.faces[k]; const ns={ color:s.color||null, img:null, src:s.src||null, fit:s.fit||'cover', scale:s.scale??1, rot:s.rot??0, ox:s.ox||0, oy:s.oy||0 };
+      if(s.src){ try{ ns.img=await loadImage(s.src); }catch(_){} }
+      d.faces[k]=ns;
+    }
+    if(src.paintSrc){ try{ d.paint.getContext('2d').drawImage(await loadImage(src.paintSrc),0,0); }catch(_){} }
+    if(src.eraseSrc){ try{ d.erase.getContext('2d').drawImage(await loadImage(src.eraseSrc),0,0); }catch(_){} }
+    d.images = await deserImages(src.images);
+    designs[m]=d;
+  }
+  undoStack.length=0; redoStack.length=0; updateHistButtons();
+  setMode(data.mode||'shirt');
+}
+
+// ---- in-app saves: data in IndexedDB (room for big/image-heavy projects), light index in localStorage ----
+const SAVE_MAX=100, IDX_KEY='rcs_index';
+let _idb=null;
+function idb(){ return _idb || (_idb=new Promise((res,rej)=>{ const r=indexedDB.open('rcs_saves',1); r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains('projects')) r.result.createObjectStore('projects'); }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); })); }
+function idbReq(mode, fn){ return idb().then(db=>new Promise((res,rej)=>{ const t=db.transaction('projects',mode), s=t.objectStore('projects'); const rq=fn(s); t.oncomplete=()=>res(rq&&rq.result); t.onerror=()=>rej(t.error); })); }
+const idbPut=(id,data)=>idbReq('readwrite', s=>s.put(data,id));
+const idbGet=(id)=>idbReq('readonly', s=>s.get(id));
+const idbDel=(id)=>idbReq('readwrite', s=>s.delete(id));
+function getIndex(){ try{ return JSON.parse(localStorage.getItem(IDX_KEY)||'[]'); }catch(_){ return []; } }
+function setIndex(a){ try{ localStorage.setItem(IDX_KEY, JSON.stringify(a)); }catch(_){} }
+
+async function doSave(){
+  const name=(document.getElementById('exportName').value.trim()) || ('Untitled '+new Date().toLocaleDateString());
+  let idx=getIndex();
+  const existing=idx.find(e=>e.name.toLowerCase()===name.toLowerCase());
+  if(!existing && idx.length>=SAVE_MAX){ toast('Max '+SAVE_MAX+' saves — delete one first','err'); return; }
+  const id=existing?existing.id:('s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+  try{ await idbPut(id, serializeProject()); }
+  catch(err){ console.error(err); toast('Save failed — storage may be full','err'); return; }
+  idx=idx.filter(e=>e.id!==id); idx.unshift({ id, name, date:Date.now() }); setIndex(idx);
+  renderSaveList();
+  toast((existing?'Updated':'Saved')+' “'+name+'”', 'ok');
+}
+async function doLoad(id){
+  try{ const data=await idbGet(id); if(!data){ toast('Save not found','err'); return; }
+    if(xform) cancelXform();
+    await applyProject(data);
+    const e=getIndex().find(x=>x.id===id); if(e) document.getElementById('exportName').value=e.name;
+    toast('Loaded — everything is still editable','ok');
+  }catch(err){ console.error(err); toast('Could not load that save','err'); }
+}
+async function doDelete(id){
+  const e=getIndex().find(x=>x.id===id);
+  if(!confirm('Delete save “'+(e?e.name:'')+'”?')) return;
+  try{ await idbDel(id); }catch(_){}
+  setIndex(getIndex().filter(x=>x.id!==id)); renderSaveList();
+}
+function renderSaveList(){
+  const idx=getIndex(), el=document.getElementById('saveList');
+  document.getElementById('saveCount').textContent=idx.length;
+  el.innerHTML='';
+  if(!idx.length){ el.innerHTML='<div class="muted-note" style="padding:7px 2px">No saved projects yet.</div>'; return; }
+  for(const e of idx){
+    const row=document.createElement('div'); row.className='save-row';
+    const nm=document.createElement('span'); nm.className='save-name'; nm.textContent=e.name; nm.title=e.name+'  ·  '+new Date(e.date).toLocaleString();
+    const ld=document.createElement('button'); ld.className='ghost'; ld.textContent='Load'; ld.addEventListener('click',()=>doLoad(e.id));
+    const dl=document.createElement('button'); dl.className='ghost'; dl.textContent='✕'; dl.title='Delete'; dl.addEventListener('click',()=>doDelete(e.id));
+    row.append(nm, ld, dl); el.appendChild(row);
+  }
+}
+document.getElementById('btnSaveSlot').addEventListener('click', doSave);
+
+// file backup (portable .json) — same full project, including images
+document.getElementById('btnSaveProj').addEventListener('click', ()=>{
+  const blob=new Blob([JSON.stringify(serializeProject())], {type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const nm=(document.getElementById('exportName').value.trim().replace(/[^\w \-]+/g,'').trim().replace(/\s+/g,'_'))||'roblox_clothing_project';
+  a.href=url; a.download=nm+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('Project file exported','ok');
+});
+document.getElementById('loadProj').addEventListener('change', async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{ if(xform) cancelXform(); await applyProject(JSON.parse(await file.text())); e.target.value=''; toast('Project loaded','ok'); }
+  catch(err){ toast('Could not load project','err'); }
+});
+
+//==================================================================
+//  Drag-drop / free image transform — crop, scale & rotate any image
+//==================================================================
+const XF_HANDLES = ['nw','n','ne','e','se','s','sw','w'];
+// draw all placed (re-editable) images for a design, clipped to the faces, skipping the one
+// currently being edited (it's shown live as the xform overlay instead).
+function drawPlacedImages(ctx, d){
+  if(!d.images || !d.images.length) return;
+  ctx.save(); clipFaces(ctx);
+  ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+  for(const im of d.images){
+    if(xform && xform.editIm===im) continue;
+    if(!im.img) continue;
+    ctx.save();
+    ctx.translate(im.cx, im.cy); ctx.rotate(im.rot*Math.PI/180);
+    const hw=im.src.w*im.scale/2, hh=im.src.h*im.scale/2;
+    ctx.drawImage(im.img, im.src.x, im.src.y, im.src.w, im.src.h, -hw,-hh, hw*2, hh*2);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+// is a placed image under this point? (top-most first)
+function placedAt(px,py){
+  const d=D(); if(!d.images) return null;
+  for(let i=d.images.length-1;i>=0;i--){ const im=d.images[i];
+    const dx=px-im.cx, dy=py-im.cy, a=-im.rot*Math.PI/180;
+    const lx=dx*Math.cos(a)-dy*Math.sin(a), ly=dx*Math.sin(a)+dy*Math.cos(a);
+    if(Math.abs(lx)<=im.src.w*im.scale/2 && Math.abs(ly)<=im.src.h*im.scale/2) return im;
+  }
+  return null;
+}
+function startXform(img, srcUrl, editIm){
+  const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+  if(alignMode) hideAlign();
+  if(tool!=='select') setTool('select');
+  select(null);
+  if(editIm){ xform={ img, srcUrl:editIm.srcUrl, src:{...editIm.src}, cx:editIm.cx, cy:editIm.cy, scale:editIm.scale, rot:editIm.rot, editIm }; }
+  else { const s=Math.min(TEMPLATE_W*0.55/iw, TEMPLATE_H*0.55/ih, 2); xform={ img, srcUrl, src:{x:0,y:0,w:iw,h:ih}, cx:TEMPLATE_W/2, cy:TEMPLATE_H/2, scale:s, rot:0, editIm:null }; }
+  xfDrag=null;
+  document.getElementById('xformBar').style.display='flex';
+  updateXformInfo(); renderArt();
+  if(!editIm) toast('Drag the handles to crop, scale & rotate — Enter to place','ok');
+}
+function editPlaced(im){ startXform(im.img, im.srcUrl, im); }
+function xfHalf(){ return { hw: xform.src.w*xform.scale/2, hh: xform.src.h*xform.scale/2 }; }
+function xfRotPt(lx,ly){ const a=xform.rot*Math.PI/180; return { x:xform.cx+lx*Math.cos(a)-ly*Math.sin(a), y:xform.cy+lx*Math.sin(a)+ly*Math.cos(a) }; }
+function xfHandlePos(id){
+  const {hw,hh}=xfHalf();
+  const M={nw:[-hw,-hh],n:[0,-hh],ne:[hw,-hh],e:[hw,0],se:[hw,hh],s:[0,hh],sw:[-hw,hh],w:[-hw,0],rot:[0,-hh-30/zoom]};
+  const [lx,ly]=M[id]; return xfRotPt(lx,ly);
+}
+function xfToLocal(px,py,ox,oy,rot){
+  const cx=(ox==null?xform.cx:ox), cy=(oy==null?xform.cy:oy), rr=(rot==null?xform.rot:rot);
+  const dx=px-cx, dy=py-cy, a=-rr*Math.PI/180;
+  return { x:dx*Math.cos(a)-dy*Math.sin(a), y:dx*Math.sin(a)+dy*Math.cos(a) };
+}
+function xfHit(px,py){
+  if(!xform) return null;
+  const r=Math.max(8,12/zoom);
+  for(const id of ['rot',...XF_HANDLES]){ const h=xfHandlePos(id); if(Math.abs(px-h.x)<=r&&Math.abs(py-h.y)<=r) return id; }
+  const l=xfToLocal(px,py), {hw,hh}=xfHalf();
+  if(Math.abs(l.x)<=hw&&Math.abs(l.y)<=hh) return 'move';
+  return null;
+}
+function xfApply(id,px,py,start){
+  if(id==='move'){ xform.cx=start.cx+(px-xfDrag.sx); xform.cy=start.cy+(py-xfDrag.sy); return; }
+  if(id==='rot'){ let r=Math.atan2(px-xform.cx, -(py-xform.cy))*180/Math.PI; if(shiftHeld) r=Math.round(r/15)*15; xform.rot=r; return; }
+  if(id.length===2){                                   // corner -> uniform scale
+    const l=xfToLocal(px,py,start.cx,start.cy,start.rot);
+    const baseDiag=Math.hypot(start.src.w/2,start.src.h/2)||1;
+    xform.scale=Math.max(0.02,Math.min(40,Math.hypot(l.x,l.y)/baseDiag));
+    return;
+  }
+  // edge -> crop (keep the opposite edge fixed)
+  const l=xfToLocal(px,py,start.cx,start.cy,start.rot), sc=start.scale;
+  const hw0=start.src.w*sc/2, hh0=start.src.h*sc/2, MIN=8;
+  let sx=start.src.x, sy=start.src.y, sw=start.src.w, sh=start.src.h, clx=0, cly=0;
+  if(id==='e'){ const rx=Math.max(-hw0+MIN,Math.min(hw0,l.x)); const k=(rx+hw0)/(2*hw0); sw=start.src.w*k; clx=(rx-hw0)/2; }
+  if(id==='w'){ const lx=Math.max(-hw0,Math.min(hw0-MIN,l.x)); const k=(hw0-lx)/(2*hw0); sw=start.src.w*k; sx=start.src.x+start.src.w*(1-k); clx=(lx+hw0)/2; }
+  if(id==='s'){ const by=Math.max(-hh0+MIN,Math.min(hh0,l.y)); const k=(by+hh0)/(2*hh0); sh=start.src.h*k; cly=(by-hh0)/2; }
+  if(id==='n'){ const ty=Math.max(-hh0,Math.min(hh0-MIN,l.y)); const k=(hh0-ty)/(2*hh0); sh=start.src.h*k; sy=start.src.y+start.src.h*(1-k); cly=(ty+hh0)/2; }
+  xform.src={x:sx,y:sy,w:sw,h:sh}; xform.scale=start.scale; xform.rot=start.rot;
+  const a=start.rot*Math.PI/180;
+  xform.cx=start.cx+clx*Math.cos(a)-cly*Math.sin(a);
+  xform.cy=start.cy+clx*Math.sin(a)+cly*Math.cos(a);
+}
+function drawXform(){
+  if(!xform) return;
+  const g=gctx, {hw,hh}=xfHalf();
+  g.save();
+  g.translate(xform.cx,xform.cy); g.rotate(xform.rot*Math.PI/180);
+  g.imageSmoothingEnabled=true; g.imageSmoothingQuality='high'; g.globalAlpha=0.96;
+  g.drawImage(xform.img, xform.src.x,xform.src.y,xform.src.w,xform.src.h, -hw,-hh,hw*2,hh*2);
+  g.globalAlpha=1; g.lineWidth=Math.max(1,1.4/zoom); g.strokeStyle='#4cc2ff';
+  g.strokeRect(-hw,-hh,hw*2,hh*2);
+  g.restore();
+  const hs=Math.max(3,5/zoom);
+  for(const id of XF_HANDLES){ const h=xfHandlePos(id); g.fillStyle='#fff'; g.fillRect(h.x-hs,h.y-hs,hs*2,hs*2); g.lineWidth=Math.max(.8,1/zoom); g.strokeStyle='#1b6fb3'; g.strokeRect(h.x-hs,h.y-hs,hs*2,hs*2); }
+  const rp=xfHandlePos('rot'), np=xfHandlePos('n');
+  g.strokeStyle='#4cc2ff'; g.lineWidth=Math.max(1,1.2/zoom); g.beginPath(); g.moveTo(np.x,np.y); g.lineTo(rp.x,rp.y); g.stroke();
+  g.beginPath(); g.arc(rp.x,rp.y,hs*1.5,0,Math.PI*2); g.fillStyle='#4cc2ff'; g.fill();
+}
+function updateXformInfo(){
+  if(!xform) return;
+  const dw=Math.round(xform.src.w*xform.scale), dh=Math.round(xform.src.h*xform.scale);
+  const deg=Math.round(((xform.rot%360)+360)%360);
+  document.getElementById('xformInfo').innerHTML='<b>'+dw+' × '+dh+'</b> px &nbsp;·&nbsp; <b>'+deg+'°</b>';
+}
+function xfCloseBar(){ document.getElementById('xformBar').style.display='none'; guideCanvas.style.cursor=(tool==='select')?'default':'crosshair'; }
+// Place keeps the image as a live, re-editable object on the design (click it later to edit).
+function placeXform(){
+  if(!xform) return;
+  pushUndo();
+  const rec={ img:xform.img, srcUrl:xform.srcUrl, src:{...xform.src}, cx:xform.cx, cy:xform.cy, scale:xform.scale, rot:xform.rot };
+  if(xform.editIm){ Object.assign(xform.editIm, rec); }   // committed edits to the existing image
+  else { D().images.push(rec); }
+  xform=null; xfDrag=null; xfCloseBar();
+  renderArt(); toast('Image placed — click it any time to edit','ok');
+}
+function cancelXform(){ xform=null; xfDrag=null; xfCloseBar(); renderArt(); }   // editIm keeps its old state
+function deleteXform(){
+  if(!xform) return;
+  if(xform.editIm){ pushUndo(); const i=D().images.indexOf(xform.editIm); if(i>=0) D().images.splice(i,1); }
+  xform=null; xfDrag=null; xfCloseBar(); renderArt(); toast('Image removed','ok');
+}
+function resetXform(){
+  if(!xform) return;
+  const iw=xform.img.naturalWidth||xform.img.width, ih=xform.img.naturalHeight||xform.img.height;
+  xform.src={x:0,y:0,w:iw,h:ih}; xform.scale=Math.min(TEMPLATE_W*0.55/iw, TEMPLATE_H*0.55/ih, 2);
+  xform.rot=0; xform.cx=TEMPLATE_W/2; xform.cy=TEMPLATE_H/2;
+  updateXformInfo(); renderGuide();
+}
+document.getElementById('xfPlace').addEventListener('click', placeXform);
+document.getElementById('xfCancel').addEventListener('click', cancelXform);
+document.getElementById('xfReset').addEventListener('click', resetXform);
+document.getElementById('xfDelete').addEventListener('click', deleteXform);
+document.getElementById('addImage').addEventListener('change', async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{ const src=await fileToDataURL(file); const img=await loadImage(src); startXform(img, src); }catch(_){ toast('Could not load that image','err'); }
+  e.target.value='';
+});
+// drop an image anywhere on the page
+window.addEventListener('dragover', e=>{ if([...(e.dataTransfer?.types||[])].includes('Files')) e.preventDefault(); });
+window.addEventListener('drop', async e=>{
+  const file=[...(e.dataTransfer?.files||[])].find(f=>f.type && f.type.startsWith('image/'));
+  if(!file) return; e.preventDefault();
+  try{ const src=await fileToDataURL(file); const img=await loadImage(src); startXform(img, src); }catch(_){ toast('Could not load that image','err'); }
+});
+
+//==================================================================
+//  3D preview  (dependency-free CSS cuboids, faces sampled from artCanvas)
+//==================================================================
+const S = 44;  // px per stud (avatar scale in the 3D preview)
+const previewEl = document.getElementById('preview');
+const sceneEl = document.getElementById('scene');
+const rigEl = document.getElementById('rig');
+let rotX=-14, rotY=-26, spin=false, previewVisible=false;
+const rigFaces = [];   // {canvas, rect, mirror}
+
+function mkCuboid(w,h,d, partFaces){
+  // partFaces: map cube-side -> template face object OR null (gray)
+  const cub=document.createElement('div'); cub.className='cuboid';
+  const sides=[
+    ['front',  w,h, `translateZ(${d/2}px)`,                    1.0],
+    ['back',   w,h, `rotateY(180deg) translateZ(${d/2}px)`,    0.82],
+    ['right',  d,h, `rotateY(90deg) translateZ(${w/2}px)`,     0.9],
+    ['left',   d,h, `rotateY(-90deg) translateZ(${w/2}px)`,    0.78],
+    ['up',     w,d, `rotateX(90deg) translateZ(${h/2}px)`,     1.12],
+    ['down',   w,d, `rotateX(-90deg) translateZ(${h/2}px)`,    0.6],
+  ];
+  const O=1.5; // overlap to hide hairline seams in the CSS preview
+  for(const [side, fw, fh, tf, bright] of sides){
+    const cf=document.createElement('div'); cf.className='cf';
+    cf.style.width=(fw+O)+'px'; cf.style.height=(fh+O)+'px';
+    cf.style.transform=`translate(-50%,-50%) ${tf}`;
+    cf.style.filter=`brightness(${bright})`;
+    const fdef = partFaces ? partFaces[side] : null;
+    if(fdef){
+      const cv=document.createElement('canvas');
+      cf.appendChild(cv);
+      // back/right faces read mirrored when wrapped — flip so text stays upright
+      const mirror = (side==='back' || side==='right' || side==='left');
+      rigFaces.push({ canvas:cv, rect:fdef.rect, mirror });
+    }
+    cub.appendChild(cf);
+  }
+  return cub;
+}
+
+function buildRig(){
+  rigEl.innerHTML=''; rigFaces.length=0;
+  const torsoFaces = sideMap('torso');
+  const wrapLimb = true;
+
+  // Head (always gray)
+  const head=mkCuboid(1.5*S,1.4*S,1.4*S,null);
+  head.style.transform=`translate(-50%,-50%) translateY(${-(S+0.7*S)}px)`;
+  // little gray block already; add eyes
+  rigEl.appendChild(head);
+
+  // Torso (always wrapped with current template's torso faces)
+  const torso=mkCuboid(2*S,2*S,1*S, torsoFaces);
+  torso.style.transform=`translate(-50%,-50%)`;
+  rigEl.appendChild(torso);
+
+  if(mode==='shirt'){
+    // arms wrapped, legs gray
+    const rArm=mkCuboid(1*S,2*S,1*S, sideMap('limbR'));
+    rArm.style.transform=`translate(-50%,-50%) translateX(${-(1.5*S)}px)`;
+    const lArm=mkCuboid(1*S,2*S,1*S, sideMap('limbL'));
+    lArm.style.transform=`translate(-50%,-50%) translateX(${1.5*S}px)`;
+    rigEl.appendChild(rArm); rigEl.appendChild(lArm);
+    const rLeg=grayCuboid(1*S,2*S,1*S, -0.5*S); const lLeg=grayCuboid(1*S,2*S,1*S, 0.5*S);
+    rigEl.appendChild(rLeg); rigEl.appendChild(lLeg);
+  } else {
+    // legs wrapped, arms gray
+    const rLeg=mkCuboid(1*S,2*S,1*S, sideMap('limbR'));
+    rLeg.style.transform=`translate(-50%,-50%) translate(${-0.5*S}px, ${2*S}px)`;
+    const lLeg=mkCuboid(1*S,2*S,1*S, sideMap('limbL'));
+    lLeg.style.transform=`translate(-50%,-50%) translate(${0.5*S}px, ${2*S}px)`;
+    rigEl.appendChild(rLeg); rigEl.appendChild(lLeg);
+    const rArm=grayCuboid(1*S,2*S,1*S,-1.5*S,0); const lArm=grayCuboid(1*S,2*S,1*S,1.5*S,0);
+    rigEl.appendChild(rArm); rigEl.appendChild(lArm);
+  }
+  applyRig(); update3D();
+}
+function grayCuboid(w,h,d, tx, ty){
+  const c=mkCuboid(w,h,d,null);
+  const yy = (ty===undefined? (h/2 + S) : ty); // default below torso (legs)
+  c.style.transform=`translate(-50%,-50%) translate(${tx}px, ${yy}px)`;
+  return c;
+}
+function sideMap(part){
+  const m={};
+  for(const f of FACES) if(f.part===part) m[f.face]=f;
+  return m;
+}
+
+function applyRig(){ rigEl.style.transform=`rotateX(${rotX}deg) rotateY(${rotY}deg)`; }
+
+function update3D(){
+  if(!previewVisible) return;
+  for(const rf of rigFaces){
+    const [x,y,w,h]=rf.rect;
+    const cv=rf.canvas; cv.width=w; cv.height=h;
+    const c=cv.getContext('2d');
+    c.clearRect(0,0,w,h);
+    if(rf.mirror){ c.translate(w,0); c.scale(-1,1); }
+    c.drawImage(artCanvas, x,y,w,h, 0,0,w,h);
+  }
+}
+let pvScheduled=false;
+function schedulePreview(){ if(!previewVisible||pvScheduled) return; pvScheduled=true; requestAnimationFrame(()=>{ pvScheduled=false; update3D(); }); }
+
+// preview controls
+document.getElementById('btn3d').addEventListener('click', ()=>{
+  previewVisible=!previewVisible;
+  previewEl.classList.toggle('show', previewVisible);
+  document.getElementById('btn3d').classList.toggle('secondary', !previewVisible);
+  if(previewVisible){ buildRig(); }
+});
+document.getElementById('pvClose').addEventListener('click', ()=>{ previewVisible=false; previewEl.classList.remove('show'); });
+document.getElementById('pvBig').addEventListener('click', ()=> previewEl.classList.toggle('big'));
+document.getElementById('pvSpin').addEventListener('change', e=> spin=e.target.checked);
+
+// drag to rotate
+let pv=null;
+sceneEl.addEventListener('pointerdown', e=>{ pv={x:e.clientX,y:e.clientY,rx:rotX,ry:rotY}; sceneEl.classList.add('grabbing'); sceneEl.setPointerCapture(e.pointerId); });
+sceneEl.addEventListener('pointermove', e=>{ if(!pv) return; rotY=pv.ry+(e.clientX-pv.x)*0.5; rotX=pv.rx-(e.clientY-pv.y)*0.5; rotX=Math.max(-80,Math.min(80,rotX)); applyRig(); });
+sceneEl.addEventListener('pointerup', ()=>{ pv=null; sceneEl.classList.remove('grabbing'); });
+function spinLoop(){ if(spin && previewVisible){ rotY+=0.5; applyRig(); } requestAnimationFrame(spinLoop); }
+requestAnimationFrame(spinLoop);
+
+//==================================================================
+//  Toast
+//==================================================================
+let toastT;
+function toast(msg, kind){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(kind?(' '+kind):'');
+  clearTimeout(toastT); toastT=setTimeout(()=> t.className='', 1800);
+}
+
+//==================================================================
+//  Boot
+//==================================================================
+setActiveColor('#C4281C');
+swWrap.children[4]?.classList.add('active');
+setMode('shirt');
+renderSaveList();
+renderArt(); renderGuide();
+// fit reliably regardless of when layout settles
+fitZoom();
+requestAnimationFrame(fitZoom);
+window.addEventListener('load', ()=> requestAnimationFrame(fitZoom));
+setTimeout(fitZoom, 250);
+window.addEventListener('resize', ()=>{ if(!userZoomed) fitZoom(); });
+</script>
+</body>
+</html>
